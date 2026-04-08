@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <!-- Gradients for fruits -->
+    <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff8c42;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff6b35;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="appleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="bananaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fde047;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#facc15;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="grapeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a855f7;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9333ea;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="limeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#84cc16;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#65a30d;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="strawberryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fb7185;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f43f5e;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="backgroundGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#334155;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e293b;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Filters for depth -->
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.3"/>
+    </filter>
+    
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1600" height="900" fill="url(#backgroundGrad)"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="200" cy="150" r="120" fill="#84cc16" opacity="0.05"/>
+  <circle cx="1400" cy="200" r="150" fill="#ff8c42" opacity="0.05"/>
+  <circle cx="1300" cy="700" r="100" fill="#f43f5e" opacity="0.05"/>
+  <circle cx="300" cy="650" r="80" fill="#a855f7" opacity="0.05"/>
+  
+  <!-- Orange 1 (top right) -->
+  <g transform="translate(1250, 180)" opacity="0.85" filter="url(#shadow)">
+    <circle cx="0" cy="0" r="60" fill="url(#orangeGrad)"/>
+    <ellipse cx="-8" cy="-8" rx="15" ry="12" fill="#ffb366" opacity="0.6"/>
+    <rect x="-3" y="-70" width="6" height="15" fill="#65a30d" rx="3"/>
+    <ellipse cx="0" cy="-70" rx="12" ry="8" fill="#84cc16"/>
+  </g>
+  
+  <!-- Apple (left side) -->
+  <g transform="translate(280, 250)" opacity="0.8" filter="url(#shadow)">
+    <ellipse cx="0" cy="5" rx="55" ry="60" fill="url(#appleGrad)"/>
+    <ellipse cx="-12" cy="-5" rx="18" ry="22" fill="#fca5a5" opacity="0.5"/>
+    <path d="M -5,-60 Q -10,-75 -8,-85" stroke="#65a30d" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="-8" cy="-60" rx="15" ry="8" fill="#84cc16" transform="rotate(-20)"/>
+  </g>
+  
+  <!-- Banana (top center) -->
+  <g transform="translate(700, 120)" opacity="0.75" filter="url(#shadow)">
+    <path d="M -60,0 Q -40,-15 0,-20 Q 40,-15 60,0 Q 50,25 20,30 Q -10,32 -40,25 Q -55,15 -60,0" 
+          fill="url(#bananaGrad)"/>
+    <path d="M -50,5 Q -35,-8 0,-12 Q 35,-8 50,5" 
+          fill="#fef08a" opacity="0.4"/>
+    <ellipse cx="-60" cy="0" rx="8" ry="12" fill="#a16207" opacity="0.3"/>
+    <ellipse cx="60" cy="0" rx="8" ry="12" fill="#a16207" opacity="0.3"/>
+  </g>
+  
+  <!-- Grapes cluster (right center) -->
+  <g transform="translate(1350, 500)" opacity="0.8" filter="url(#shadow)">
+    <circle cx="0" cy="0" r="22" fill="url(#grapeGrad)"/>
+    <circle cx="25" cy="10" r="22" fill="url(#grapeGrad)"/>
+    <circle cx="-25" cy="10" r="22" fill="url(#grapeGrad)"/>
+    <circle cx="12" cy="30" r="22" fill="url(#grapeGrad)"/>
+    <circle cx="-12" cy="30" r="22" fill="url(#grapeGrad)"/>
+    <circle cx="0" cy="50" r="22" fill="url(#grapeGrad)"/>
+    <ellipse cx="5" cy="-5" rx="8" ry="10" fill="#c084fc" opacity="0.5"/>
+    <path d="M 0,-25 Q -5,-45 0,-60" stroke="#65a30d" stroke-width="5" fill="none" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Lime (bottom left) -->
+  <g transform="translate(350, 680)" opacity="0.85" filter="url(#shadow)">
+    <circle cx="0" cy="0" r="50" fill="url(#limeGrad)"/>
+    <ellipse cx="-10" cy="-10" rx="18" ry="15" fill="#bef264" opacity="0.6"/>
+    <circle cx="0" cy="0" r="50" fill="none" stroke="#a3e635" stroke-width="2" opacity="0.3"/>
+  </g>
+  
+  <!-- Strawberry (bottom center) -->
+  <g transform="translate(750, 720)" opacity="0.8" filter="url(#shadow)">
+    <path d="M 0,-50 Q 35,-30 40,10 Q 30,35 0,45 Q -30,35 -40,10 Q -35,-30 0,-50" 
+          fill="url(#strawberryGrad)"/>
+    <ellipse cx="-8" cy="0" rx="12" ry="15" fill="#fda4af" opacity="0.4"/>
+    <!-- Seeds -->
+    <ellipse cx="-15" cy="5" rx="3" ry="4" fill="#fef3c7" opacity="0.8"/>
+    <ellipse cx="12" cy="0" rx="3" ry="4" fill="#fef3c7" opacity="0.8"/>
+    <ellipse cx="0" cy="15" rx="3" ry="4" fill="#fef3c7" opacity="0.8"/>
+    <ellipse cx="-8" cy="25" rx="3" ry="4" fill="#fef3c7" opacity="0.8"/>
+    <ellipse cx="10" cy="20" rx="3" ry="4" fill="#fef3c7" opacity="0.8"/>
+    <!-- Leaf -->
+    <path d="M -8,-50 Q -20,-60 -25,-70 Q -20,-65 -15,-60 Q -10,-58 -8,-50" fill="#84cc16"/>
+    <path d="M 0,-50 Q 5,-65 8,-75 Q 6,-67 3,-60 Q 1,-55 0,-50" fill="#65a30d"/>
+    <path d="M 8,-50 Q 18,-60 22,-68 Q 18,-63 12,-58 Q 9,-54 8,-50" fill="#84cc16"/>
+  </g>
+  
+  <!-- Orange 2 (bottom right, smaller) -->
+  <g transform="translate(1100, 650)" opacity="0.7" filter="url(#shadow)">
+    <circle cx="0" cy="0" r="45" fill="url(#orangeGrad)"/>
+    <ellipse cx="-7" cy="-7" rx="12" ry="10" fill="#ffb366" opacity="0.6"/>
+    <rect x="-2" y="-52" width="4" height="10" fill="#65a30d" rx="2"/>
+  </g>
+  
+  <!-- Small decorative fruits -->
+  <!-- Cherry 1 -->
+  <g transform="translate(550, 300)" opacity="0.6">
+    <circle cx="0" cy="0" r="18" fill="#ef4444"/>
+    <circle cx="25" cy="-5" r="18" fill="#dc2626"/>
+    <path d="M 0,-18 Q -10,-35 -5,-50 M 25,-23 Q 20,-35 -5,-50" 
+          stroke="#65a30d" stroke-width="2" fill="none"/>
+  </g>
+  
+  <!-- Cherry 2 -->
+  <g transform="translate(950, 480)" opacity="0.5">
+    <circle cx="0" cy="0" r="15" fill="#ef4444"/>
+    <circle cx="20" cy="-4" r="15" fill="#dc2626"/>
+    <path d="M 0,-15 Q -8,-28 -4,-40 M 20,-19 Q 16,-28 -4,-40" 
+          stroke="#65a30d" stroke-width="2" fill="none"/>
+  </g>
+  
+  <!-- Lemon (small) -->
+  <g transform="translate(1450, 380)" opacity="0.6">
+    <ellipse cx="0" cy="0" rx="25" ry="35" fill="#fde047"/>
+    <ellipse cx="-5" cy="-8" rx="10" ry="12" fill="#fef08a" opacity="0.5"/>
+  </g>
+  
+  <!-- Pear -->
+  <g transform="translate(180, 480)" opacity="0.7" filter="url(#shadow)">
+    <ellipse cx="0" cy="15" rx="35" ry="40" fill="#84cc16"/>
+    <ellipse cx="0" cy="-20" rx="25" ry="28" fill="#a3e635"/>
+    <ellipse cx="-8" cy="5" rx="12" ry="15" fill="#bef264" opacity="0.5"/>
+    <rect x="-2" y="-50" width="4" height="12" fill="#65a30d" rx="2"/>
+  </g>
+  
+  <!-- Watermelon slice (decorative) -->
+  <g transform="translate(1500, 650)" opacity="0.5">
+    <path d="M -40,0 Q -40,-45 0,-45 Q 40,-45 40,0 Z" fill="#fb7185"/>
+    <path d="M -35,0 Q -35,-40 0,-40 Q 35,-40 35,0 Z" fill="#fda4af"/>
+    <path d="M -40,0 L -40,8 Q -40,15 -35,15 L 35,15 Q 40,15 40,8 L 40,0 Z" fill="#22c55e"/>
+    <!-- Seeds -->
+    <ellipse cx="-15" cy="-15" rx="2.5" ry="3.5" fill="#1e293b"/>
+    <ellipse cx="10" cy="-20" rx="2.5" ry="3.5" fill="#1e293b"/>
+    <ellipse cx="-5" cy="-30" rx="2.5" ry="3.5" fill="#1e293b"/>
+    <ellipse cx="18" cy="-10" rx="2.5" ry="3.5" fill="#1e293b"/>
+  </g>
+  
+  <!-- Kiwi slice (decorative) -->
+  <g transform="translate(480, 580)" opacity="0.55">
+    <circle cx="0" cy="0" r="30" fill="#84cc16"/>
+    <circle cx="0" cy="0" r="22" fill="#bef264"/>
+    <circle cx="0" cy="0" r="12" fill="#fef9e7"/>
+    <!-- Seeds in circular pattern -->
+    <circle cx="0" cy="-6" r="1.5" fill="#334155"/>
+    <circle cx="5" cy="-3" r="1.5" fill="#334155"/>
+    <circle cx="5" cy="3" r="1.5" fill="#334155"/>
+    <circle cx="0" cy="6" r="1.5" fill="#334155"/>
+    <circle cx="-5" cy="3" r="1.5" fill="#334155"/>
+    <circle cx="-5" cy="-3" r="1.5" fill="#334155"/>
+  </g>
+  
+  <!-- Overlay gradient for depth -->
+  <rect width="1600" height="900" fill="url(#backgroundGrad)" opacity="0.4"/>
+  
+  <!-- Subtle light rays -->
+  <path d="M 0,0 L 400,900" stroke="#ffffff" stroke-width="2" opacity="0.03"/>
+  <path d="M 400,0 L 800,900" stroke="#ffffff" stroke-width="2" opacity="0.03"/>
+  <path d="M 800,0 L 1200,900" stroke="#ffffff" stroke-width="2" opacity="0.03"/>
+  <path d="M 1200,0 L 1600,900" stroke="#ffffff" stroke-width="2" opacity="0.03"/>
+</svg>
