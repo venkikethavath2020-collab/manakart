@@ -11,7 +11,7 @@
         </div>
       </div>
 
-      <button @click="goBack" class="icon-btn bg-white/20">
+      <button @click="goBack" class="icon-btn bg-white/20 text-white">
         <ArrowLeft class="w-5 h-5" />
       </button>
     </div>
@@ -91,20 +91,111 @@
       </div>
 
       <div v-if="orders.length" class="space-y-3 mt-5">
-        <div v-for="order in orders" :key="order.id" class="order-card">
-          <div>
-            <p class="order-id">#{{ order.id.slice(0, 8) }}</p>
-            <p class="order-date">
-              {{ new Date(order.created_at).toLocaleDateString() }}
-            </p>
+        <div
+          v-for="order in orders"
+          :key="order.id"
+          class="order-card cursor-pointer"
+          @click="toggleOrder(order.id)"
+        >
+          <!-- ORDER SUMMARY ROW -->
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="order-id">#{{ order.id.slice(0, 8) }}</p>
+              <p class="order-date">
+                {{ new Date(order.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" }) }}
+              </p>
+            </div>
+
+            <div class="text-right flex items-center gap-3">
+              <div>
+                <p class="order-price">&#8377;{{ order.grand_total }}</p>
+                <span class="status-pill" :class="statusColor(order.status)">
+                  {{ order.status }}
+                </span>
+              </div>
+              <ChevronDown
+                class="w-4 h-4 text-slate-400 transition-transform"
+                :class="expandedOrder === order.id ? 'rotate-180' : ''"
+              />
+            </div>
           </div>
 
-          <div class="text-right">
-            <p class="order-price">₹{{ order.grand_total }}</p>
+          <!-- ORDER DETAILS (EXPANDED) -->
+          <div
+            v-if="expandedOrder === order.id"
+            class="mt-4 pt-4 border-t border-slate-100 space-y-3"
+            @click.stop
+          >
+            <!-- STATUS TRACKER -->
+            <div class="flex items-center gap-1 overflow-x-auto pb-2">
+              <div
+                v-for="(step, idx) in statusSteps"
+                :key="step.key"
+                class="flex items-center"
+              >
+                <div class="flex flex-col items-center min-w-[60px]">
+                  <div
+                    class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                    :class="getStepClass(order.status, step.key)"
+                  >
+                    <component
+                      :is="step.icon"
+                      class="w-4 h-4"
+                    />
+                  </div>
+                  <p class="text-[10px] mt-1 text-slate-500 text-center">{{ step.label }}</p>
+                </div>
+                <div
+                  v-if="idx < statusSteps.length - 1"
+                  class="w-6 h-0.5 mb-4"
+                  :class="isStepPassed(order.status, statusSteps[idx + 1]?.key ?? '')
+                    ? 'bg-green-500' : 'bg-slate-200'"
+                ></div>
+              </div>
+            </div>
 
-            <span class="status-pill" :class="statusColor(order.status)">
-              {{ order.status }}
-            </span>
+            <!-- ITEMS LIST -->
+            <div class="space-y-2">
+              <p class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Items</p>
+              <div
+                v-for="item in order.items"
+                :key="item.id + item.unitGrams"
+                class="flex items-center gap-3 bg-slate-50 rounded-lg p-2"
+              >
+                <img
+                  :src="`/fruits_images/${item.name?.toLowerCase()}.webp`"
+                  class="w-10 h-10 rounded-lg object-cover"
+                  @error="($event.target as HTMLImageElement).style.display = 'none'"
+                />
+                <div class="flex-1">
+                  <p class="text-sm font-medium text-slate-800">{{ item.name }}</p>
+                  <p class="text-xs text-slate-500">{{ item.unitLabel }} x {{ item.quantity }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- PRICE BREAKDOWN -->
+            <div class="text-xs space-y-1 pt-2 border-t border-slate-100">
+              <div class="flex justify-between">
+                <span class="text-slate-500">Subtotal</span>
+                <span>&#8377;{{ order.subtotal }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500">Delivery</span>
+                <span :class="order.delivery_charge === 0 ? 'text-green-600' : ''">
+                  {{ order.delivery_charge === 0 ? 'FREE' : '&#8377;' + order.delivery_charge }}
+                </span>
+              </div>
+              <div class="flex justify-between font-semibold text-sm pt-1 border-t border-slate-100">
+                <span>Total</span>
+                <span>&#8377;{{ order.grand_total }}</span>
+              </div>
+            </div>
+
+            <!-- ADMIN NOTE -->
+            <div v-if="order.admin_note" class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
+              <span class="font-semibold">Note:</span> {{ order.admin_note }}
+            </div>
           </div>
         </div>
       </div>
@@ -119,7 +210,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { ArrowLeft, Plus, Pencil, Trash2, MapPin, Package } from "lucide-vue-next";
+import {
+  ArrowLeft, Plus, Pencil, Trash2, MapPin, Package,
+  ChevronDown, Clock, CheckCircle, Truck, PackageCheck
+} from "lucide-vue-next";
 import useAuthStore from "../../store/authStore";
 import AddressForm from "./AddressForm.vue";
 import { useFruitsStore } from "../../store/fruitsStore";
@@ -133,8 +227,41 @@ const orders = computed(() => useStore.userOrders);
 
 const showAddressForm = ref(false);
 const editingId = ref<string | null>(null);
+const expandedOrder = ref<string | null>(null);
 
 const userInitial = computed(() => profile.value?.name?.charAt(0)?.toUpperCase() || "U");
+
+const statusSteps = [
+  { key: "pending", label: "Placed", icon: Clock },
+  { key: "confirmed", label: "Confirmed", icon: CheckCircle },
+  { key: "shipped", label: "Shipped", icon: Truck },
+  { key: "delivered", label: "Delivered", icon: PackageCheck },
+];
+
+const statusOrder = ["pending", "confirmed", "shipped", "delivered"];
+
+const getStepClass = (orderStatus: string, stepKey: string) => {
+  if (orderStatus === "cancelled") {
+    return stepKey === "pending"
+      ? "bg-red-100 text-red-600"
+      : "bg-slate-100 text-slate-400";
+  }
+  const orderIdx = statusOrder.indexOf(orderStatus);
+  const stepIdx = statusOrder.indexOf(stepKey);
+  if (stepIdx <= orderIdx) return "bg-green-100 text-green-600";
+  return "bg-slate-100 text-slate-400";
+};
+
+const isStepPassed = (orderStatus: string, stepKey: string) => {
+  if (orderStatus === "cancelled") return false;
+  const orderIdx = statusOrder.indexOf(orderStatus);
+  const stepIdx = statusOrder.indexOf(stepKey);
+  return stepIdx <= orderIdx;
+};
+
+const toggleOrder = (id: string) => {
+  expandedOrder.value = expandedOrder.value === id ? null : id;
+};
 
 const toggleAdd = () => {
   showAddressForm.value = !showAddressForm.value;
@@ -156,10 +283,12 @@ const goBack = () => {
 };
 
 const statusColor = (status: string) => {
-  if (status === "pending") return "text-yellow-600";
-  if (status === "delivered") return "text-green-600";
-  if (status === "cancelled") return "text-red-600";
-  return "text-slate-500";
+  if (status === "pending") return "bg-amber-100 text-amber-700";
+  if (status === "confirmed") return "bg-blue-100 text-blue-700";
+  if (status === "shipped") return "bg-purple-100 text-purple-700";
+  if (status === "delivered") return "bg-green-100 text-green-700";
+  if (status === "cancelled") return "bg-red-100 text-red-700";
+  return "bg-slate-100 text-slate-500";
 };
 
 onMounted(() => {
@@ -215,7 +344,7 @@ onMounted(() => {
 }
 
 .order-card {
-  @apply flex justify-between items-center rounded-2xl border border-slate-200 p-4 bg-white hover:shadow-md transition;
+  @apply rounded-2xl border border-slate-200 p-4 bg-white hover:shadow-md transition;
 }
 
 .order-id {
@@ -231,7 +360,7 @@ onMounted(() => {
 }
 
 .status-pill {
-  @apply text-xs px-3 py-1 rounded-full font-semibold capitalize;
+  @apply text-xs px-3 py-1 rounded-full font-semibold capitalize inline-block mt-1;
 }
 
 .empty-state {

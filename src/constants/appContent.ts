@@ -1,5 +1,4 @@
 export const APP_CONTACT = {
-  whatsappNumber: '9640082321',
   displayPhone: '+91 9640082321',
 }
 
@@ -28,17 +27,17 @@ export const INFO_BOXES = [
   },
   {
     icon: '📞',
-    text: '+91 9640082321 (WhatsApp)',
+    text: '+91 9640082321',
   },
   {
     icon: '💰',
     text: 'Prices follow daily market rates',
-    variant: 'warning', 
+    variant: 'warning',
   },
 ]
 
 export const PRODUCT_SECTION = {
-  title: 'Today’s Fresh Picks',
+  title: 'Today\'s Fresh Picks',
   subtitle: 'Tap a fruit to add it to cart',
 }
 

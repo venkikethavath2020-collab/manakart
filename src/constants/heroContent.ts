@@ -10,18 +10,18 @@ export const HERO_BADGE = {
 }
 
 export const HERO_TITLE = {
-  brand: 'Fruits Villa',
-  tagline: 'Nature’s Best, Daily Fresh',
+  brand: 'Manakart',
+  tagline: 'Nature\'s Best, Daily Fresh',
 }
 
 export const HERO_DESCRIPTION = {
   text: 'Handpicked seasonal fruits delivered fresh to your doorstep.',
   highlight:
-    'Order on WhatsApp, pay on delivery — simple, fast, and honest.',
+    'Order online, pay on delivery — simple, fast, and honest.',
 }
 
 export const HERO_PRIMARY_CTA = {
-  label: 'Order on WhatsApp',
+  label: 'Order Now',
 }
 
 export const HERO_SECONDARY_CTA = {

@@ -257,8 +257,10 @@ const submit = async () => {
       const res: any = await authStore.signUp(form);
 
       if (res.success) {
-        successMessage.value = "Signup successful 🎉";
-        mode.value = "login";
+        successMessage.value = "Account created! Logging in...";
+        await fetchInitialData();
+        emit("authenticated");
+        setTimeout(closeModal, 800);
       } else errorMessage.value = res.message;
     }
 

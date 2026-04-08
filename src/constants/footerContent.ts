@@ -1,6 +1,6 @@
 export const FOOTER_BRAND = {
   emoji: '🍎',
-  name: 'Fruits Villa',
+  name: 'Manakart',
   tagline: 'Fresh Since Day One',
   description:
     'Your neighborhood fruit partner, bringing farm-fresh goodness to your doorstep every single day.',
@@ -8,8 +8,7 @@ export const FOOTER_BRAND = {
 
 export const FOOTER_CONTACT = {
   phone: '+91 9640082321',
-  phoneRaw: '919640082321',
-  whatsappLink: 'https://wa.me/919640082321',
+  phoneRaw: '9640082321',
 }
 
 export const FOOTER_PROMISES = [

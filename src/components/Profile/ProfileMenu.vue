@@ -1,9 +1,5 @@
 <template>
   <div class="relative" ref="menuRef">
-  <!-- <h2 style="color: white;">
-  {{ isLoggedIn }}
-</h2> -->
-
     <!-- If Logged In -->
     <div v-if="isLoggedIn">
       <button
@@ -17,7 +13,7 @@
       <!-- Dropdown -->
       <div
         v-if="open"
-        class="absolute right-0 mt-3 w-56 rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 overflow-hidden"
+        class="absolute right-0 mt-3 w-56 rounded-2xl bg-white shadow-xl ring-1 ring-slate-200 overflow-hidden z-50"
       >
         <div class="px-4 py-3 border-b">
           <p class="font-semibold text-slate-800">
@@ -26,27 +22,41 @@
           <p class="text-xs text-slate-500">
             {{ user?.phone }}
           </p>
+          <span
+            v-if="isAdmin"
+            class="inline-block mt-1 text-[10px] font-semibold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full"
+          >
+            Admin
+          </span>
         </div>
 
         <button
           class="dropdown-item"
           @click="goToProfile"
         >
-          👤 My Profile
+          <User class="w-4 h-4" /> My Profile
         </button>
 
         <button
           class="dropdown-item"
           @click="goToOrders"
         >
-          📦 My Orders
+          <Package class="w-4 h-4" /> My Orders
         </button>
 
         <button
-          class="dropdown-item text-red-600"
+          v-if="isAdmin"
+          class="dropdown-item text-amber-700"
+          @click="goToAdmin"
+        >
+          <Shield class="w-4 h-4" /> Admin Panel
+        </button>
+
+        <button
+          class="dropdown-item text-red-600 border-t"
           @click="logout"
         >
-          🚪 Logout
+          <LogOut class="w-4 h-4" /> Logout
         </button>
       </div>
     </div>
@@ -61,7 +71,6 @@
     </button>
   </div>
   <AuthModal :model-value="showAuth" @update:model-value="showAuth = false" />
-
 </template>
 
 <script setup lang="ts">
@@ -69,15 +78,19 @@ import { computed, ref, onMounted, onBeforeUnmount } from "vue"
 import { useRouter } from "vue-router"
 import useAuthStore from "../../store/authStore"
 import AuthModal from "../Auth/AuthModal.vue"
+import { User, Package, Shield, LogOut } from "lucide-vue-next"
+import { useFruitsStore } from "../../store/fruitsStore"
 
 const router = useRouter()
 const authStore = useAuthStore()
+const fruitsStore = useFruitsStore()
 const open = ref(false)
 const showAuth = ref(false)
 const menuRef = ref<HTMLElement | null>(null)
 
 const user = computed(() => authStore.getUser)
 const isLoggedIn = computed(() => authStore.isLoggedIn)
+const isAdmin = computed(() => authStore.isAdmin)
 
 const userInitial = computed(() =>
   user.value?.name?.charAt(0)?.toUpperCase() || "U"
@@ -92,13 +105,20 @@ const goToProfile = () => {
 
 const goToOrders = () => {
   open.value = false
-  router.push("/profile") 
+  router.push("/profile")
+}
+
+const goToAdmin = () => {
+  open.value = false
+  router.push("/admin")
 }
 
 const logout = () => {
   authStore.logout()
+  fruitsStore.clearCart()
+  fruitsStore.$reset()
+  open.value = false
   router.push("/")
-  window.location.reload() 
 }
 
 const openAuth = () => {
@@ -112,7 +132,6 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
-
 onMounted(() => {
   document.addEventListener("click", handleClickOutside)
 })
@@ -124,6 +143,6 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .dropdown-item {
-  @apply block w-full px-4 py-3 text-left text-sm text-slate-700 hover:bg-slate-100;
+  @apply flex items-center gap-2 w-full px-4 py-3 text-left text-sm text-slate-700 hover:bg-slate-100;
 }
 </style>

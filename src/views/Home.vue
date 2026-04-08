@@ -1,6 +1,7 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-lime-50 via-white to-orange-50">
-    <div class="absolute top-5 right-6 z-20">
+    <div class="absolute top-5 right-6 z-20 flex items-center gap-2">
+      <CustomerNotifications />
       <ProfileMenu />
     </div>
     <div class="relative">
@@ -19,8 +20,19 @@
 
             <div class="pill-light">
               <span class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></span>
-              {{ availableFruits.length }} varieties available
+              {{ displayedFruits.length }} varieties available
             </div>
+          </div>
+
+          <!-- SEARCH -->
+          <div class="relative">
+            <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search fruits..."
+              class="w-full sm:max-w-sm rounded-2xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-lime-400 focus:ring-2 focus:ring-lime-200 shadow-sm"
+            />
           </div>
 
           <div class="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -41,10 +53,18 @@
 
             <template v-else>
               <ProductCard
-                v-for="fruit in availableFruits"
+                v-for="fruit in displayedFruits"
                 :key="fruit.id"
                 :fruit="fruit"
               />
+
+              <div
+                v-if="!displayedFruits.length && searchQuery"
+                class="col-span-full text-center py-8 text-slate-500"
+              >
+                <p class="font-medium">No fruits match "{{ searchQuery }}"</p>
+                <p class="text-xs mt-1">Try a different search term</p>
+              </div>
             </template>
           </div>
         </section>
@@ -79,7 +99,6 @@
       <CartDrawer
         v-if="isCartOpen"
         :open="isCartOpen"
-        :whatsapp-number="APP_CONTACT.whatsappNumber"
         @close="closeCart"
       />
     </div>
@@ -94,15 +113,26 @@ import CartDrawer from "../components/CartDrawer.vue";
 import StickyCartBar from "../components/StickyCartBar.vue";
 import Footer from "../components/Footer.vue";
 import ProfileMenu from "../components/Profile/ProfileMenu.vue";
-import { APP_CONTACT, PRODUCT_SECTION, TRUST_STATS } from "../constants/appContent";
+import CustomerNotifications from "../components/CustomerNotifications.vue";
+import { Search } from "lucide-vue-next";
+import { PRODUCT_SECTION, TRUST_STATS } from "../constants/appContent";
 import { useFruitsStore } from "../store/fruitsStore";
 
 const isCartOpen = ref(false);
 const fruitsStore = useFruitsStore();
+const searchQuery = ref("");
 
 const availableFruits = computed<any>(() =>
   fruitsStore.fruits.filter((fruit) => fruit.available)
 );
+
+const displayedFruits = computed(() => {
+  if (!searchQuery.value.trim()) return availableFruits.value;
+  const q = searchQuery.value.toLowerCase().trim();
+  return availableFruits.value.filter((fruit: any) =>
+    fruit.name.toLowerCase().includes(q)
+  );
+});
 
 const openCart = () => (isCartOpen.value = true);
 const closeCart = () => (isCartOpen.value = false);

@@ -21,8 +21,10 @@
 
         <!-- CART ITEMS -->
         <div class="flex-1 p-5 space-y-4">
-          <div v-if="items.length === 0" class="text-center text-slate-500">
-            Your cart is empty
+          <div v-if="items.length === 0" class="text-center text-slate-500 py-12">
+            <ShoppingBag class="w-12 h-12 mx-auto text-slate-300 mb-3" />
+            <p class="font-medium">Your cart is empty</p>
+            <p class="text-xs mt-1">Add some fresh fruits to get started</p>
           </div>
 
           <div
@@ -46,7 +48,7 @@
               </div>
 
               <p class="text-xs text-slate-500">
-                {{ item.unitLabel }} • ₹{{ unitPriceForItem(item) }}
+                {{ item.unitLabel }} &middot; &#8377;{{ unitPriceForItem(item) }}
               </p>
 
               <div class="flex justify-between mt-2">
@@ -63,14 +65,14 @@
                 </div>
 
                 <p class="text-sm font-semibold">
-                  ₹{{ unitPriceForItem(item) * item.quantity }}
+                  &#8377;{{ unitPriceForItem(item) * item.quantity }}
                 </p>
               </div>
             </div>
           </div>
 
           <!-- SUGGESTED -->
-          <div v-if="suggestedFruits.length" class="pt-3 border-t">
+          <div v-if="suggestedFruits.length && items.length" class="pt-3 border-t">
             <p class="text-sm font-semibold mb-2">People also add</p>
 
             <div class="flex gap-3 overflow-x-auto pb-2 thin-scrollbar">
@@ -84,7 +86,7 @@
                   class="w-16 h-16 mx-auto rounded-lg object-cover"
                 />
                 <p class="text-xs mt-1 font-medium">{{ fruit.name }}</p>
-                <p class="text-xs text-green-600">₹{{ fruit.price_per_kg }}/kg</p>
+                <p class="text-xs text-green-600">&#8377;{{ fruit.price_per_kg }}/kg</p>
 
                 <button
                   class="mt-1 text-xs bg-green-500 text-white px-2 py-1 rounded-lg"
@@ -98,7 +100,7 @@
         </div>
 
         <!-- FOOTER -->
-        <div class="border-t p-5 space-y-4">
+        <div v-if="items.length" class="border-t p-5 space-y-4">
           <!-- ADDRESS -->
           <div>
             <div class="flex justify-between mb-1">
@@ -116,17 +118,17 @@
               <span class="text-xs">
                 {{ selectedAddress.street }}, {{ selectedAddress.area }}
               </span>
-              <span class="text-xs">{{ selectedAddress.pincode }}</span>
+              <span class="text-xs"> - {{ selectedAddress.pincode }}</span>
             </div>
 
             <p v-else class="text-xs text-red-500">Please select delivery address</p>
 
-            <p v-if="selectedAddress && !isServiceAvailable" class="text-xs text-red-500">
+            <p v-if="selectedAddress && !isServiceAvailable" class="text-xs text-red-500 mt-1">
               Service not available in this pincode
             </p>
 
-            <p v-if="!minimumReached && items.length" class="text-xs text-orange-500">
-              Minimum order ₹{{ MIN_ORDER_VALUE }}
+            <p v-if="!minimumReached && items.length" class="text-xs text-orange-500 mt-1">
+              Add &#8377;{{ amountForMinimumOrder }} more to place order (min &#8377;{{ MIN_ORDER_VALUE }})
             </p>
           </div>
 
@@ -134,17 +136,23 @@
           <div class="text-sm space-y-1">
             <div class="flex justify-between">
               <span>Subtotal</span>
-              <span>₹{{ totalPrice }}</span>
+              <span>&#8377;{{ totalPrice }}</span>
             </div>
 
             <div class="flex justify-between">
               <span>Delivery</span>
-              <span>{{ deliveryCharge === 0 ? "FREE" : "₹" + deliveryCharge }}</span>
+              <span :class="deliveryCharge === 0 ? 'text-green-600 font-semibold' : ''">
+                {{ deliveryCharge === 0 ? "FREE" : "&#8377;" + deliveryCharge }}
+              </span>
+            </div>
+
+            <div v-if="deliveryCharge > 0" class="text-xs text-green-600">
+              Free delivery on orders above &#8377;{{ FREE_DELIVERY_MIN }}
             </div>
 
             <div class="flex justify-between font-semibold text-base border-t pt-2">
               <span>Total</span>
-              <span>₹{{ grandTotal }}</span>
+              <span>&#8377;{{ grandTotal }}</span>
             </div>
           </div>
 
@@ -152,16 +160,49 @@
           <button
             :disabled="cartCta.disabled"
             @click="placeOrder"
-            class="w-full py-3 rounded-xl text-white transition"
+            class="w-full py-3 rounded-xl text-white font-semibold transition"
             :class="cartCta.class"
           >
             {{ cartCta.text }}
           </button>
 
-          <p v-if="apiError" class="text-xs text-red-500">{{ apiError }}</p>
+          <p v-if="apiError" class="text-xs text-red-500 text-center">{{ apiError }}</p>
         </div>
       </div>
     </aside>
+
+    <!-- ORDER SUCCESS MODAL -->
+    <div
+      v-if="showSuccess"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    >
+      <div class="w-full max-w-sm mx-4 bg-white rounded-3xl p-8 text-center shadow-2xl">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <CheckCircle class="w-10 h-10 text-green-600" />
+        </div>
+        <h3 class="text-xl font-bold text-slate-900">Order Placed!</h3>
+        <p class="text-sm text-slate-500 mt-2">
+          Your order <span class="font-semibold text-slate-700">#{{ successOrderId }}</span> has been placed successfully.
+        </p>
+        <p class="text-xs text-slate-400 mt-1">
+          You'll be notified once the admin confirms your order.
+        </p>
+        <div class="flex gap-3 mt-6">
+          <button
+            class="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            @click="viewOrders"
+          >
+            View Orders
+          </button>
+          <button
+            class="flex-1 py-2.5 rounded-xl bg-green-600 text-sm font-semibold text-white hover:bg-green-700"
+            @click="continueShopping"
+          >
+            Continue Shopping
+          </button>
+        </div>
+      </div>
+    </div>
 
     <AddressSheet
       :open="showSheet"
@@ -181,13 +222,14 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
 import { useFruitsStore } from "../store/fruitsStore";
 import AddressSheet from "./AddressSheet.vue";
-import { X, Plus, Minus, Trash2 } from "lucide-vue-next";
+import { X, Plus, Minus, Trash2, ShoppingBag, CheckCircle } from "lucide-vue-next";
 import { ALLOWED_PINCODES } from "../constants/serviceArea";
-import { FOOTER_CONTACT } from "../constants/footerContent";
 import AddressModal from "./Profile/AddressModal.vue";
 
+const router = useRouter();
 const openModal = ref(false);
 
 const fruitsStore = useFruitsStore();
@@ -226,6 +268,8 @@ const isServiceAvailable = computed(() =>
 
 const isLoading = ref(false);
 const apiError = ref("");
+const showSuccess = ref(false);
+const successOrderId = ref("");
 
 const cartCta = computed(() => {
   if (!items.value.length)
@@ -233,7 +277,7 @@ const cartCta = computed(() => {
 
   if (!minimumReached.value)
     return {
-      text: `Add ₹${amountForMinimumOrder.value} more`,
+      text: `Add \u20B9${amountForMinimumOrder.value} more`,
       disabled: true,
       class: "bg-orange-400",
     };
@@ -254,15 +298,15 @@ const cartCta = computed(() => {
 
   if (isLoading.value)
     return {
-      text: "Processing...",
+      text: "Placing order...",
       disabled: true,
-      class: "bg-green-400",
+      class: "bg-green-400 animate-pulse",
     };
 
   return {
-    text: "Order via WhatsApp",
+    text: `Place Order \u2022 \u20B9${grandTotal.value}`,
     disabled: false,
-    class: "bg-green-500 hover:bg-green-600",
+    class: "bg-green-600 hover:bg-green-700 active:scale-[0.98]",
   };
 });
 
@@ -275,47 +319,34 @@ const placeOrder = async () => {
 
   try {
     isLoading.value = true;
+    apiError.value = "";
 
-    await fruitsStore.createOrder({
+    const response = await fruitsStore.createOrder({
       address_id: selectedAddress.value.id,
       items: items.value,
     });
 
-    const message = encodeURIComponent(buildWhatsAppMessage());
-    window.open(`${FOOTER_CONTACT.whatsappLink}?text=${message}`, "_blank");
+    const orderId = response?.data?.order?.id || "";
+    successOrderId.value = orderId.slice(0, 8);
 
     fruitsStore.clearCart();
+    showSuccess.value = true;
   } catch (err: any) {
-    apiError.value = err?.response?.data?.message || "Order failed";
+    apiError.value = err?.response?.data?.message || "Order failed. Please try again.";
   } finally {
     isLoading.value = false;
   }
 };
 
-/* WHATSAPP MESSAGE */
-const buildWhatsAppMessage = () => {
-  const lines = items.value.map(
-    (item) =>
-      `• ${item.name} (${item.unitLabel}) x ${item.quantity} = ₹${
-        unitPriceForItem(item) * item.quantity
-      }`
-  );
+const continueShopping = () => {
+  showSuccess.value = false;
+  emit("close");
+};
 
-  return `
-🛒 *New FruitKart Order*
-
-${lines.join("\n")}
-
-Subtotal: ₹${totalPrice.value}
-Delivery: ${deliveryCharge.value === 0 ? "FREE" : "₹" + deliveryCharge.value}
-Total: ₹${grandTotal.value}
-
-📍 Deliver to:
-${selectedAddress.value.house},
-${selectedAddress.value.street},
-${selectedAddress.value.area},
-${selectedAddress.value.pincode}
-`;
+const viewOrders = () => {
+  showSuccess.value = false;
+  emit("close");
+  router.push("/profile");
 };
 
 /* PRICE */
@@ -347,7 +378,6 @@ const setSelectedAddress = (addr: any) => {
 const handleAddressClick = () => {
   userAddress.value?.length ? showSheet.value = true : openModal.value = true;
 };
-
 </script>
 
 <style>

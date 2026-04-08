@@ -1,16 +1,27 @@
 import { defineStore } from "pinia";
 import apiClient from "../service/axios";
 
+interface User {
+  id?: string;
+  name: string;
+  phone: string;
+  role: string;
+}
+
 const useAuthStore = defineStore("auth", {
   state: () => ({
     isAuthenticated: false,
-    user: null as { name: string; phone: string } | null,
+    user: null as User | null,
   }),
   getters: {
     isLoggedIn: (state) =>
       state.isAuthenticated || localStorage.getItem("token") !== null,
     getUser: (state) =>
       state.user || JSON.parse(localStorage.getItem("user") || "null"),
+    isAdmin(): boolean {
+      const user = this.getUser;
+      return user?.role === "admin";
+    },
   },
   actions: {
     async login(user: { phone: string; password: string }) {
@@ -25,12 +36,12 @@ const useAuthStore = defineStore("auth", {
         this.user = loggedInUser;
         localStorage.setItem("user", JSON.stringify(loggedInUser));
         localStorage.setItem("token", token);
-        return { success: true };
+        return { success: true, user: loggedInUser };
       } catch (error: any) {
         console.error("Login failed:", error);
         return {
           success: false,
-          message: error.response.data.message || "Login failed",
+          message: error.response?.data?.message || "Login failed",
         };
       }
     },
@@ -41,16 +52,14 @@ const useAuthStore = defineStore("auth", {
         if (!response.status || response.status !== 201) {
           throw new Error(`Error registering user: ${response.statusText}`);
         }
-        const registeredUser = response.data.user;
-        this.isAuthenticated = true;
-        this.user = registeredUser;
-        this.login({ phone: user.phone, password: user.password });
-        return { success: true };
+        // Auto-login after signup
+        const loginResult = await this.login({ phone: user.phone, password: user.password });
+        return loginResult;
       } catch (error: any) {
         console.error("Registration failed:", error);
         return {
           success: false,
-          message: error.response.data.message || "Registration failed",
+          message: error.response?.data?.message || "Registration failed",
         };
       }
     },
@@ -72,7 +81,7 @@ const useAuthStore = defineStore("auth", {
         console.error("Password reset failed:", error);
         return {
           success: false,
-          message: error.response.data.message || "Password reset failed",
+          message: error.response?.data?.message || "Password reset failed",
         };
       }
     },
