@@ -10,12 +10,12 @@ export const HERO_STORY = {
   },
   description: {
     text: `We source seasonal fruits every morning from local markets.
-Choose what you need, get it delivered the same day, and`,
+Order by 11 AM and we deliver the same evening (4–8 PM), and`,
     emphasis: 'pay only after delivery',
   },
   trustPills: [
     '🥭 Seasonal',
-    '🚚 Same-day',
+    '🚚 Evening delivery',
     '💳 Pay on delivery',
   ],
 }

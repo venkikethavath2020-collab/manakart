@@ -29,9 +29,9 @@ export const HERO_SECONDARY_CTA = {
 }
 
 export const HERO_TRUST_POINTS = [
-  '⚡ 30-60 min delivery',
+  '🌅 Order by 11 AM',
+  '🚚 Delivered 4–8 PM',
   '💳 Pay on delivery',
-  '💰 Market price',
 ]
 
 export const HERO_FLOATING_EMOJIS = [

@@ -13,7 +13,7 @@ export const FOOTER_CONTACT = {
 
 export const FOOTER_PROMISES = [
   { icon: '🌱', text: 'Farm-fresh quality daily' },
-  { icon: '⚡', text: 'Same-day delivery' },
+  { icon: '⚡', text: 'Same-day evening delivery (order by 11 AM)' },
   { icon: '💯', text: '100% satisfaction guarantee' },
   { icon: '💰', text: 'Fair market pricing' },
 ]

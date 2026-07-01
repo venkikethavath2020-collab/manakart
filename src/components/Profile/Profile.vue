@@ -104,6 +104,12 @@
               <p class="order-date">
                 {{ new Date(order.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" }) }}
               </p>
+              <p
+                v-if="order.delivery_date && order.status !== 'cancelled' && order.status !== 'delivered'"
+                class="mt-1 inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700"
+              >
+                🚚 {{ deliveryLabel(order.delivery_date) }}
+              </p>
             </div>
 
             <div class="text-right flex items-center gap-3">
@@ -289,6 +295,19 @@ const statusColor = (status: string) => {
   if (status === "delivered") return "bg-green-100 text-green-700";
   if (status === "cancelled") return "bg-red-100 text-red-700";
   return "bg-slate-100 text-slate-500";
+};
+
+/* Delivery-day label: Today / Tomorrow / date, all in the 4–8 PM window. */
+const istDateKey = (offsetDays = 0) => {
+  const ist = new Date(Date.now() + (5 * 60 + 30) * 60 * 1000);
+  ist.setUTCDate(ist.getUTCDate() + offsetDays);
+  return ist.toISOString().slice(0, 10);
+};
+const deliveryLabel = (date: string) => {
+  const key = (date || "").slice(0, 10);
+  if (key === istDateKey(0)) return "Today, 4–8 PM";
+  if (key === istDateKey(1)) return "Tomorrow, 4–8 PM";
+  return new Date(key).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) + ", 4–8 PM";
 };
 
 onMounted(() => {

@@ -16,6 +16,7 @@ export const ENDPOINTS = {
   // User
   PROFILE: "/users",
   ADDRESSES: "/users/addresses",
+  ALL_USERS: "/users/all",
 
   // Admin - Notifications
   NOTIFICATIONS: "/notifications",

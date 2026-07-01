@@ -93,18 +93,30 @@
                 ₹{{ fruit?.price_per_kg }}
               </td>
 
-              <!-- STATUS -->
+              <!-- STATUS TOGGLE -->
               <td class="px-4 py-4">
-                <button
-                  class="rounded-full border px-3 py-1 text-xs font-semibold"
-                  :class="
-                    fruit.available
-                      ? 'border-lime-300 bg-lime-50 text-lime-700'
-                      : 'border-slate-300 bg-slate-50 text-slate-500'
-                  "
-                >
-                  {{ fruit?.available ? "Available" : "Out of stock" }}
-                </button>
+                <div class="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    role="switch"
+                    :aria-checked="fruit.available"
+                    :disabled="togglingId === fruit.id"
+                    class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition disabled:opacity-50"
+                    :class="fruit.available ? 'bg-lime-500' : 'bg-slate-300'"
+                    @click="toggleAvailability(fruit)"
+                  >
+                    <span
+                      class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition"
+                      :class="fruit.available ? 'translate-x-5' : 'translate-x-0.5'"
+                    ></span>
+                  </button>
+                  <span
+                    class="text-xs font-semibold"
+                    :class="fruit.available ? 'text-lime-700' : 'text-slate-500'"
+                  >
+                    {{ fruit.available ? "Available" : "Out of stock" }}
+                  </span>
+                </div>
               </td>
 
               <!-- ACTIONS -->
@@ -172,10 +184,6 @@
           </span>
         </label>
 
-        <label class="flex items-center gap-2 text-sm font-semibold text-slate-700">
-          <input type="checkbox" v-model="form.available" />
-          Available
-        </label>
       </div>
 
       <div class="mt-6 flex justify-end gap-3">
@@ -276,6 +284,19 @@ const confirmRemove = async (id: string) => {
   if (!fruit) return;
   if (window.confirm(`Remove ${fruit.name}?`)) {
     await fruitStore.deleteFruit(id);
+  }
+};
+
+/* ---------------- AVAILABILITY TOGGLE ---------------- */
+const togglingId = ref<string | null>(null);
+
+const toggleAvailability = async (fruit: { id: string; available?: boolean }) => {
+  if (togglingId.value) return; // ignore rapid double-clicks
+  togglingId.value = fruit.id;
+  try {
+    await fruitStore.updateFruit(fruit.id, { available: !fruit.available });
+  } finally {
+    togglingId.value = null;
   }
 };
 

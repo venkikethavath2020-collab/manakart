@@ -156,6 +156,12 @@
             </div>
           </div>
 
+          <!-- DELIVERY WINDOW -->
+          <div class="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            <span>🚚</span>
+            <span>{{ deliveryNotice }}</span>
+          </div>
+
           <!-- CTA -->
           <button
             :disabled="cartCta.disabled"
@@ -184,7 +190,13 @@
         <p class="text-sm text-slate-500 mt-2">
           Your order <span class="font-semibold text-slate-700">#{{ successOrderId }}</span> has been placed successfully.
         </p>
-        <p class="text-xs text-slate-400 mt-1">
+        <p
+          v-if="successDeliveryLabel"
+          class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700"
+        >
+          🚚 Arriving {{ successDeliveryLabel }}
+        </p>
+        <p class="text-xs text-slate-400 mt-2">
           You'll be notified once the admin confirms your order.
         </p>
         <div class="flex gap-3 mt-6">
@@ -228,9 +240,18 @@ import AddressSheet from "./AddressSheet.vue";
 import { X, Plus, Minus, Trash2, ShoppingBag, CheckCircle } from "lucide-vue-next";
 import { ALLOWED_PINCODES } from "../constants/serviceArea";
 import AddressModal from "./Profile/AddressModal.vue";
+import { DELIVERY } from "../constants/delivery";
 
 const router = useRouter();
 const openModal = ref(false);
+
+// Delivery-window message shown before placing the order.
+const deliveryNotice = (() => {
+  const beforeCutoff = new Date().getHours() < DELIVERY.cutoffHour;
+  return beforeCutoff
+    ? `Delivered today, ${DELIVERY.windowLabel}. Order by ${DELIVERY.cutoffLabel}.`
+    : DELIVERY.afterCutoffLine;
+})();
 
 const fruitsStore = useFruitsStore();
 const items = computed(() => fruitsStore.cartItems);
@@ -270,6 +291,21 @@ const isLoading = ref(false);
 const apiError = ref("");
 const showSuccess = ref(false);
 const successOrderId = ref("");
+const successDeliveryDate = ref("");
+
+// Friendly delivery-day label for the confirmation modal.
+const istDateKey = (offsetDays = 0) => {
+  const ist = new Date(Date.now() + (5 * 60 + 30) * 60 * 1000);
+  ist.setUTCDate(ist.getUTCDate() + offsetDays);
+  return ist.toISOString().slice(0, 10);
+};
+const successDeliveryLabel = computed(() => {
+  const key = (successDeliveryDate.value || "").slice(0, 10);
+  if (!key) return "";
+  if (key === istDateKey(0)) return "today, 4–8 PM";
+  if (key === istDateKey(1)) return "tomorrow, 4–8 PM";
+  return new Date(key).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) + ", 4–8 PM";
+});
 
 const cartCta = computed(() => {
   if (!items.value.length)
@@ -326,8 +362,9 @@ const placeOrder = async () => {
       items: items.value,
     });
 
-    const orderId = response?.data?.order?.id || "";
-    successOrderId.value = orderId.slice(0, 8);
+    const order = response?.data?.order || {};
+    successOrderId.value = (order.id || "").slice(0, 8);
+    successDeliveryDate.value = order.delivery_date || "";
 
     fruitsStore.clearCart();
     showSuccess.value = true;

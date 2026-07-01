@@ -22,7 +22,7 @@
             ? 'bg-slate-900 text-white border-slate-900'
             : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'"
         >
-          {{ f === 'all' ? 'All' : f }}
+          {{ f === 'all' ? 'All' : f === 'today' ? '🚚 Today' : f }}
           <span
             v-if="orderCountByStatus(f) > 0"
             class="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold"
@@ -99,6 +99,15 @@
           <div class="text-right min-w-[70px]">
             <p class="text-sm font-bold text-slate-900">&#8377;{{ order.grand_total }}</p>
           </div>
+
+          <!-- DELIVERY DAY -->
+          <span
+            v-if="order.delivery_date"
+            class="rounded-full px-2.5 py-1 text-[11px] font-semibold border"
+            :class="deliveryClass(order.delivery_date)"
+          >
+            🚚 {{ deliveryLabel(order.delivery_date) }}
+          </span>
 
           <!-- STATUS -->
           <span
@@ -194,6 +203,22 @@
                   <p>{{ order.street }}, {{ order.area }}</p>
                   <p class="text-xs text-slate-500">Pincode: {{ order.addr_pincode }}</p>
                   <p v-if="order.landmark" class="text-xs text-slate-400">Landmark: {{ order.landmark }}</p>
+
+                  <!-- NAVIGATE (live location captured) -->
+                  <a
+                    v-if="hasCoords(order)"
+                    :href="mapsUrl(order)"
+                    target="_blank"
+                    rel="noopener"
+                    class="mt-2 flex items-center justify-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-xs font-semibold text-white hover:bg-green-700"
+                    @click.stop
+                  >
+                    <Navigation class="w-3.5 h-3.5" />
+                    Navigate to location
+                  </a>
+                  <p v-else class="mt-2 text-[11px] text-slate-400">
+                    📍 No live location shared
+                  </p>
                 </div>
                 <p v-else class="text-xs text-slate-400">No address provided</p>
               </div>
@@ -325,7 +350,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, reactive } from "vue";
 import {
-  ChevronDown, Package, CheckCircle, XCircle, Truck, PackageCheck
+  ChevronDown, Package, CheckCircle, XCircle, Truck, PackageCheck, Navigation
 } from "lucide-vue-next";
 import apiClient from "../service/axios";
 
@@ -356,13 +381,17 @@ interface Order {
   area?: string;
   addr_pincode?: string;
   landmark?: string;
+  delivery_date?: string;
+  delivery_slot?: string;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 /* ---------------- STATE ---------------- */
 const orders = ref<Order[]>([]);
 const isLoading = ref(false);
 const expandedId = ref<string | null>(null);
-const filters = ["all", "pending", "confirmed", "shipped", "delivered", "cancelled"];
+const filters = ["today", "all", "pending", "confirmed", "shipped", "delivered", "cancelled"];
 const activeFilter = ref("all");
 
 const cancelModal = reactive({
@@ -372,13 +401,19 @@ const cancelModal = reactive({
 });
 
 /* ---------------- COMPUTED ---------------- */
+// Orders scheduled for delivery today (IST), excluding cancelled.
+const isTodayDelivery = (o: Order) =>
+  o.status !== "cancelled" && o.delivery_date && toDateKey(o.delivery_date) === istDateKey(0);
+
 const filteredOrders = computed(() => {
   if (activeFilter.value === "all") return orders.value;
+  if (activeFilter.value === "today") return orders.value.filter(isTodayDelivery);
   return orders.value.filter((o) => o.status === activeFilter.value);
 });
 
 const orderCountByStatus = (filter: string) => {
   if (filter === "all") return orders.value.length;
+  if (filter === "today") return orders.value.filter(isTodayDelivery).length;
   return orders.value.filter((o) => o.status === filter).length;
 };
 
@@ -429,6 +464,39 @@ const formatDate = (date: string) =>
     dateStyle: "medium",
     timeStyle: "short",
   });
+
+/* ---------------- DELIVERY DAY ---------------- */
+// Normalise a DATE value (may arrive as '2026-07-01' or ISO) to 'YYYY-MM-DD'.
+const toDateKey = (value: string) => (value || "").slice(0, 10);
+
+// Today / tomorrow in IST, as 'YYYY-MM-DD'.
+const istDateKey = (offsetDays = 0) => {
+  const ist = new Date(Date.now() + (5 * 60 + 30) * 60 * 1000);
+  ist.setUTCDate(ist.getUTCDate() + offsetDays);
+  return ist.toISOString().slice(0, 10);
+};
+
+const deliveryLabel = (date: string) => {
+  const key = toDateKey(date);
+  if (key === istDateKey(0)) return "Today, 4–8 PM";
+  if (key === istDateKey(1)) return "Tomorrow, 4–8 PM";
+  return new Date(key).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) + ", 4–8 PM";
+};
+
+const deliveryClass = (date: string) => {
+  const key = toDateKey(date);
+  if (key === istDateKey(0)) return "border-green-300 bg-green-50 text-green-700";
+  if (key === istDateKey(1)) return "border-blue-300 bg-blue-50 text-blue-700";
+  return "border-slate-300 bg-slate-50 text-slate-600";
+};
+
+/* ---------------- NAVIGATION ---------------- */
+const hasCoords = (o: Order) =>
+  o.latitude != null && o.longitude != null;
+
+// Google Maps directions deep link — opens the native Maps app on mobile.
+const mapsUrl = (o: Order) =>
+  `https://www.google.com/maps/dir/?api=1&destination=${o.latitude},${o.longitude}`;
 
 const statusClass = (status: string) => {
   switch (status) {

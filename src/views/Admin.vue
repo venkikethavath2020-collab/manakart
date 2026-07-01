@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import useAuthStore from "../store/authStore";
-import AdminPanel from "../components/AdminPanel.vue";
+import AdminDashboard from "../components/admin/AdminDashboard.vue";
 import { useFruitsStore } from "../store/fruitsStore";
 import AuthModal from "../components/Auth/AuthModal.vue";
 
@@ -15,6 +15,7 @@ const showAuthModal = ref(false);
 const isAdmin = computed(() => authStore.isLoggedIn && authStore.isAdmin);
 const isLoggedIn = computed(() => authStore.isLoggedIn);
 const isNonAdmin = computed(() => authStore.isLoggedIn && !authStore.isAdmin);
+const adminName = computed(() => authStore.getUser?.name || "Administrator");
 
 onMounted(async () => {
   if (isAdmin.value) {
@@ -95,26 +96,38 @@ const openLogin = () => {
     </div>
   </div>
 
-  <!-- ADMIN PANEL -->
-  <div v-else class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 sm:p-6">
-    <div class="mx-auto max-w-7xl space-y-4">
-      <div class="flex justify-between items-center">
-        <button
-          class="rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 shadow-sm"
-          @click="goHome"
-        >
-          &larr; Back to Store
-        </button>
+  <!-- ADMIN DASHBOARD -->
+  <div v-else class="min-h-screen bg-slate-50">
+    <!-- TOP BAR -->
+    <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur-md">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🍏</span>
+          <div>
+            <p class="font-display text-base font-extrabold leading-tight text-slate-900">Manakart Admin</p>
+            <p class="text-[11px] text-slate-500">{{ adminName }}</p>
+          </div>
+        </div>
 
-        <button
-          class="rounded-full border border-red-200 bg-white px-4 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 shadow-sm"
-          @click="logout"
-        >
-          Logout
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            class="rounded-full border border-slate-300 bg-white px-4 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-100"
+            @click="goHome"
+          >
+            ← Store
+          </button>
+          <button
+            class="rounded-full border border-red-200 bg-white px-4 py-1.5 text-xs font-semibold text-red-600 shadow-sm hover:bg-red-50"
+            @click="logout"
+          >
+            Logout
+          </button>
+        </div>
       </div>
+    </header>
 
-      <AdminPanel />
+    <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6">
+      <AdminDashboard />
     </div>
   </div>
 </template>

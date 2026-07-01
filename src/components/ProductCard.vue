@@ -133,7 +133,12 @@ const props = defineProps<{
 
 const fruitStore = useFruitsStore();
 
-const selectedUnit = ref(props.fruit.units?.[2] ?? { label: "", grams: 0 });
+// Default to the 1kg option (or its dozen/large equivalent), falling back to
+// the last available unit — unit counts now vary per fruit.
+const defaultUnit =
+  props.fruit.units?.find((u) => u.grams === 1000) ??
+  props.fruit.units?.[props.fruit.units.length - 1] ?? { label: "", grams: 0 };
+const selectedUnit = ref(defaultUnit);
 
 const quantity = ref(1);
 

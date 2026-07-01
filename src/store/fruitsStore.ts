@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import apiClient from "../service/axios";
+import { unitsForFruit } from "../constants/fruitUnits";
 
 export const useFruitsStore = defineStore("fruits", {
   state: () => ({
@@ -82,7 +83,7 @@ export const useFruitsStore = defineStore("fruits", {
 
         this.fruits = response.data.data.map((x: any) => ({
           ...x,
-          units: this.units,
+          units: unitsForFruit(x.name),
         }));
       } catch (error) {
         this.error = error instanceof Error ? error.message : String(error);
@@ -103,7 +104,7 @@ export const useFruitsStore = defineStore("fruits", {
 
         this.fruits.unshift({
           ...response.data.data,
-          units: this.units,
+          units: unitsForFruit(response.data.data.name),
         });
       } catch (error) {
         this.error = error instanceof Error ? error.message : String(error);
@@ -127,7 +128,7 @@ export const useFruitsStore = defineStore("fruits", {
         if (index !== -1) {
           this.fruits[index] = {
             ...response.data.data,
-            units: this.units,
+            units: unitsForFruit(response.data.data.name),
           };
         }
       } catch (error) {
