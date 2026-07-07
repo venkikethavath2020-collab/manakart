@@ -14,7 +14,7 @@
 
         <div class="flex items-center gap-2">
           <CustomerNotifications v-if="isLoggedIn" />
-          <ProfileMenu />
+          <ProfileMenu @show-auth="showAuth = true" />
           <button
             class="rounded-full bg-gradient-to-r from-lime-500 to-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition active:scale-95"
             @click="goShop"
@@ -190,18 +190,20 @@
       </div>
     </section>
 
+    <AuthModal :model-value="showAuth" @update:model-value="showAuth = false" />
     <Footer />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import Footer from "../components/Footer.vue";
 import ProfileMenu from "../components/Profile/ProfileMenu.vue";
 import CustomerNotifications from "../components/CustomerNotifications.vue";
 import useAuthStore from "../store/authStore";
 import { HERO_TITLE } from "../constants/heroContent";
+import AuthModal from "../components/Auth/AuthModal.vue";
 import {
   LANDING_HERO,
   LANDING_STATS,
@@ -216,6 +218,7 @@ const authStore = useAuthStore();
 const isLoggedIn = computed(() => authStore.isLoggedIn);
 
 const goShop = () => router.push("/products");
+const showAuth = ref(false);
 
 const scrollTo = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });

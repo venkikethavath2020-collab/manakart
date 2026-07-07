@@ -70,14 +70,12 @@
       Login / Signup
     </button>
   </div>
-  <AuthModal :model-value="showAuth" @update:model-value="showAuth = false" />
 </template>
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onBeforeUnmount } from "vue"
 import { useRouter } from "vue-router"
 import useAuthStore from "../../store/authStore"
-import AuthModal from "../Auth/AuthModal.vue"
 import { User, Package, Shield, LogOut } from "lucide-vue-next"
 import { useFruitsStore } from "../../store/fruitsStore"
 
@@ -85,7 +83,6 @@ const router = useRouter()
 const authStore = useAuthStore()
 const fruitsStore = useFruitsStore()
 const open = ref(false)
-const showAuth = ref(false)
 const menuRef = ref<HTMLElement | null>(null)
 
 const user = computed(() => authStore.getUser)
@@ -121,8 +118,10 @@ const logout = () => {
   router.push("/")
 }
 
+const emit = defineEmits(["showAuth"])
+
 const openAuth = () => {
-  showAuth.value = true
+  emit("showAuth", true)
 }
 
 /* Close on outside click */

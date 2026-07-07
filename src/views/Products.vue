@@ -11,7 +11,7 @@
 
           <div class="flex items-center gap-2">
             <CustomerNotifications v-if="isLoggedIn" />
-            <ProfileMenu />
+            <ProfileMenu @show-auth="showAuth = true" />
           </div>
         </div>
 
@@ -125,6 +125,8 @@
     </nav>
 
     <CartDrawer v-if="isCartOpen" :open="isCartOpen" @close="closeCart" />
+    <AuthModal :model-value="showAuth" @update:model-value="showAuth = false" />
+
   </div>
 </template>
 
@@ -139,6 +141,7 @@ import CustomerNotifications from "../components/CustomerNotifications.vue";
 import { useFruitsStore } from "../store/fruitsStore";
 import useAuthStore from "../store/authStore";
 import { DELIVERY, deliveryEstimate } from "../constants/delivery";
+import AuthModal from "../components/Auth/AuthModal.vue";
 
 const router = useRouter();
 const fruitsStore = useFruitsStore();
@@ -150,6 +153,7 @@ const deliveryLine = deliveryEstimate(now);
 
 const searchQuery = ref("");
 const isCartOpen = ref(false);
+const showAuth = ref(false);
 
 const isLoggedIn = computed(() => authStore.isLoggedIn);
 const itemCount = computed(() => fruitsStore.cartItemCount);
