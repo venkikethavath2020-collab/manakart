@@ -6,10 +6,10 @@ export const LANDING_HERO = {
   titleTop: 'Fresh Fruits,',
   titleHighlight: 'Delivered to Your Door',
   subtitle:
-    'Handpicked every morning from the local market and delivered to your door the same evening. Order by 11 AM, pay after delivery.',
+    'Handpicked every morning from the local market and delivered to your door the same evening. Order by 02:00 PM, pay after delivery.',
   primaryCta: 'Start Shopping',
   secondaryCta: 'How it works',
-  trustPills: ['🌅 Order by 11 AM', '🚚 Delivered 4–8 PM', '💳 Pay on delivery'],
+  trustPills: ['🌅 Order by 02:00 PM', '🚚 Delivered 4–8 PM', '💳 Pay on delivery'],
 }
 
 export const LANDING_STATS = [
@@ -23,7 +23,7 @@ export const LANDING_FEATURES = [
   {
     icon: '🚚',
     title: 'Same-day evening delivery',
-    text: 'Order by 11 AM and we deliver the same evening, 4–8 PM — after we handpick it fresh.',
+    text: 'Order by 02:00 PM and we deliver the same evening, 4–8 PM — after we handpick it fresh.',
   },
   {
     icon: '💰',
@@ -45,7 +45,7 @@ export const LANDING_FEATURES = [
 export const LANDING_STEPS = [
   { step: '1', icon: '🛒', title: 'Pick your fruits', text: 'Browse today’s fresh picks and add them to your cart.' },
   { step: '2', icon: '📍', title: 'Add your address', text: 'Tell us where to deliver. We serve your neighbourhood.' },
-  { step: '3', icon: '🍊', title: 'Delivered this evening', text: 'Order by 11 AM and we hand-deliver fresh, 4–8 PM. Pay on delivery.' },
+  { step: '3', icon: '🍊', title: 'Delivered this evening', text: 'Order by 02:00 PM and we hand-deliver fresh, 4–8 PM. Pay on delivery.' },
 ]
 
 export const LANDING_TESTIMONIALS = [

@@ -29,7 +29,7 @@ export const HERO_SECONDARY_CTA = {
 }
 
 export const HERO_TRUST_POINTS = [
-  '🌅 Order by 11 AM',
+  '🌅 Order by 02:00 PM',
   '🚚 Delivered 4–8 PM',
   '💳 Pay on delivery',
 ]

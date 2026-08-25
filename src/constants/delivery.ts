@@ -5,8 +5,8 @@
 
 export const DELIVERY = {
   // Order cutoff for same-day delivery (24h clock for logic, label for display)
-  cutoffHour: 11, // 11:00 AM
-  cutoffLabel: "11:00 AM",
+  cutoffHour: 11, // 02:00 PM
+  cutoffLabel: "02:00 PM",
 
   // Evening delivery window
   windowStart: "4 PM",
@@ -15,11 +15,11 @@ export const DELIVERY = {
 
   // Short reusable strings
   sameDayShort: "Same-day evening delivery",
-  promiseLine: "Order by 11 AM → delivered today, 4–8 PM",
+  promiseLine: "Order by 02:00 PM → delivered today, 4–8 PM",
 
   // Orders after cutoff: accepted, best-effort (today if possible, else tomorrow)
   afterCutoffLine:
-    "Ordering after 11 AM? We'll try for this evening, otherwise it arrives tomorrow, 4–8 PM.",
+    "Ordering after 02:00 PM? We'll try for this evening, otherwise it arrives tomorrow.",
 } as const;
 
 /**

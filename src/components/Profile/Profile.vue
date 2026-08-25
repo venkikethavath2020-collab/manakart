@@ -8,6 +8,8 @@
         <div>
           <h2 class="text-white text-lg font-semibold">{{ profile?.name }}</h2>
           <p class="text-white/80 text-sm">{{ profile?.phone }}</p>
+          <p class="text-white/80 text-sm">{{ profile?.email }}</p>
+
         </div>
       </div>
 
@@ -33,7 +35,7 @@
         @cancel="showAddressForm = false"
       />
 
-      <div v-if="addresses.length" class="grid gap-4 sm:grid-cols-2 mt-5">
+      <div v-if="addresses.length" class="grid gap-4 mt-5">
         <div v-for="address in addresses" :key="address.id" class="address-card">
           <AddressForm
             v-if="editingId === address.id"
@@ -105,7 +107,7 @@
                 {{ new Date(order.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" }) }}
               </p>
               <p
-                v-if="order.delivery_date && order.status !== 'cancelled' && order.status !== 'delivered'"
+                v-if="false && order.delivery_date && order.status !== 'cancelled' && order.status !== 'delivered'"
                 class="mt-1 inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-700"
               >
                 🚚 {{ deliveryLabel(order.delivery_date) }}
