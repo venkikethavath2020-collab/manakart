@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import apiClient from "../service/axios";
+import router from "../router";
 
 interface User {
   id?: string;
@@ -186,12 +187,12 @@ const useAuthStore = defineStore("auth", {
     ========================================== */
 
     logout() {
-      debugger
       this.isAuthenticated = false;
       this.user = null;
 
       localStorage.removeItem("token");
       localStorage.removeItem("user");
+      router.push('/')
     },
   },
 });
