@@ -360,30 +360,6 @@ const formatItemQuantity = (item: any) => {
   return String(quantity);
 };
 
-/** Unit price from common item field names */
-const getItemUnitPrice = (item: any): number | null => {
-  const candidates = [
-    item.pricePerKgAtAdd,
-    item.price_per_kg_at_add,
-    item.price,
-    item.unit_price,
-    item.unitPrice,
-    item.selling_price,
-    item.item_price,
-    item.rate,
-  ];
-
-  for (const value of candidates) {
-    const number = Number(value);
-
-    if (Number.isFinite(number) && number >= 0) {
-      return number;
-    }
-  }
-
-  return null;
-};
-
 /** Line total: explicit total, or unit price × quantity */
 const getItemLineTotal = (item: any): number | null => {
   const quantity = Number(item.quantity || 0);
