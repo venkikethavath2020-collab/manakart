@@ -351,7 +351,7 @@
                   Order Items
                 </p>
                 <p class="text-[10px] font-medium text-slate-500">
-                  {{ itemCount(order) }} products · {{ totalItemQuantity(order) }} units
+                  {{ itemCount(order) }} products
                 </p>
               </div>
 
@@ -364,16 +364,11 @@
                   :key="item.id || index"
                   class="flex items-center justify-between gap-2 px-3 py-2"
                 >
-                  <div class="min-w-0">
-                    <p class="truncate text-xs font-semibold text-slate-800">
-                      {{ item.name || "Item" }}
-                    </p>
-                    <p v-if="formatItemWeight(item)" class="mt-0.5 text-[10px] text-slate-500">
-                      {{ formatItemWeight(item) }}
-                    </p>
-                  </div>
-                  <span class="shrink-0 rounded-md bg-slate-100 px-2 py-1 text-[10px] font-bold text-slate-700">
-                    × {{ item.quantity || 0 }}
+                  <p class="min-w-0 truncate text-xs font-semibold text-slate-800">
+                    {{ item.name || "Item" }}
+                  </p>
+                  <span class="shrink-0 text-[10px] font-bold text-slate-700">
+                    {{ formatItemQuantity(item) }}
                   </span>
                 </div>
                 <div
@@ -668,8 +663,7 @@
                 Order Items
               </p>
               <p class="text-xs text-slate-500">
-                {{ itemCount(selectedOrder) }} products ·
-                {{ totalItemQuantity(selectedOrder) }} units
+                {{ itemCount(selectedOrder) }} products
               </p>
             </div>
 
@@ -682,18 +676,11 @@
                 :key="item.id || index"
                 class="flex items-center justify-between gap-3 rounded-xl border border-slate-100 bg-white px-3.5 py-3 shadow-sm"
               >
-                <div class="min-w-0">
-                  <p class="truncate text-sm font-semibold text-slate-800">
-                    {{ item.name || "Item" }}
-                  </p>
-                  <p v-if="formatItemWeight(item)" class="mt-0.5 text-xs text-slate-500">
-                    {{ formatItemWeight(item) }}
-                  </p>
-                </div>
-                <span
-                  class="shrink-0 rounded-lg bg-slate-900 px-2.5 py-1 text-xs font-bold text-white"
-                >
-                  ×{{ item.quantity || 0 }}
+                <p class="min-w-0 truncate text-sm font-semibold text-slate-800">
+                  {{ item.name || "Item" }}
+                </p>
+                <span class="shrink-0 text-sm font-bold text-slate-900">
+                  {{ formatItemQuantity(item) }}
                 </span>
               </div>
             </div>
@@ -840,21 +827,44 @@ const getOrderItems = (order: RiderOrder) => {
 
 const itemCount = (order: RiderOrder) => getOrderItems(order).length;
 
-const totalItemQuantity = (order: RiderOrder) => {
-  return getOrderItems(order).reduce(
-    (total, item) => total + Number(item.quantity || 0),
-    0
-  );
-};
+/**
+ * Formats the final deliverable quantity for a rider.
+ * - Dozen-based (e.g. Banana): "6 dozen"
+ * - Weight-based: unitGrams × quantity → "250 g" or "2 kg"
+ * - Other units (Piece, Pack, etc.): preserves unitLabel when present
+ */
+const formatItemQuantity = (item: any) => {
+  const quantity = Number(item.quantity || 0);
+  if (!quantity) return "";
 
-const formatItemWeight = (item: any) => {
-  const grams = Number(item.unitGrams || 0);
-  if (!grams) return "";
-  if (grams >= 1000) {
-    const kg = grams / 1000;
-    return `${kg % 1 === 0 ? kg : kg.toFixed(2)} kg`;
+  // Products sold by dozen (e.g. Banana)
+  if (item.unitLabel?.toLowerCase() === "dozen") {
+    return `${quantity} dozen`;
   }
-  return `${grams} g`;
+
+  // Weight-based products
+  const unitGrams = Number(item.unitGrams || 0);
+  if (unitGrams) {
+    const totalGrams = unitGrams * quantity;
+
+    if (totalGrams >= 1000) {
+      const kg = totalGrams / 1000;
+      // Avoid unnecessary decimal zeros (2 kg not 2.00 kg; 1.5 kg ok)
+      const kgDisplay = kg % 1 === 0 ? String(kg) : parseFloat(kg.toFixed(2)).toString();
+      return `${kgDisplay} kg`;
+    }
+
+    return `${totalGrams} g`;
+  }
+
+  // Other explicit units (Piece, Pack, etc.)
+  if (item.unitLabel) {
+    const label = String(item.unitLabel).toLowerCase();
+    return `${quantity} ${label}`;
+  }
+
+  // Fallback: plain quantity
+  return String(quantity);
 };
 
 const hasLocation = (order: RiderOrder) =>
