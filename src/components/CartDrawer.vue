@@ -123,12 +123,20 @@
 
             <p v-else class="text-xs text-red-500">Please select delivery address</p>
 
-            <p v-if="selectedAddress && !isServiceAvailable" class="text-xs text-red-500 mt-1">
+            <p
+              v-if="selectedAddress && !isServiceAvailable"
+              class="text-xs text-red-500 mt-1"
+            >
               Service not available in this pincode
             </p>
 
-            <p v-if="!minimumReached && items.length" class="text-xs text-orange-500 mt-1">
-              Add &#8377;{{ amountForMinimumOrder }} more to place order (min &#8377;{{ MIN_ORDER_VALUE }})
+            <p
+              v-if="!minimumReached && items.length"
+              class="text-xs text-orange-500 mt-1"
+            >
+              Add &#8377;{{ amountForMinimumOrder }} more to place order (min &#8377;{{
+                MIN_ORDER_VALUE
+              }})
             </p>
           </div>
 
@@ -157,7 +165,9 @@
           </div>
 
           <!-- DELIVERY WINDOW -->
-          <div class="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <div
+            class="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800"
+          >
             <span>🚚</span>
             <span>{{ deliveryNotice }}</span>
           </div>
@@ -183,15 +193,19 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
     >
       <div class="w-full max-w-sm mx-4 bg-white rounded-3xl p-8 text-center shadow-2xl">
-        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div
+          class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
           <CheckCircle class="w-10 h-10 text-green-600" />
         </div>
         <h3 class="text-xl font-bold text-slate-900">Order Placed!</h3>
         <p class="text-sm text-slate-500 mt-2">
-          Your order <span class="font-semibold text-slate-700">#{{ successOrderId }}</span> has been placed successfully.
+          Your order
+          <span class="font-semibold text-slate-700">#{{ successOrderId }}</span> has been
+          placed successfully.
         </p>
         <p
-          v-if="successDeliveryLabel"
+          v-if="false"
           class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-xs font-semibold text-green-700"
         >
           🚚 Arriving {{ successDeliveryLabel }}
@@ -223,7 +237,8 @@
       @close="showSheet = false"
       @select="setSelectedAddress"
     />
-
+  </div>
+  <div>
     <AddressModal
       :open="openModal"
       :initialData="selectedAddress"
@@ -304,7 +319,10 @@ const successDeliveryLabel = computed(() => {
   if (!key) return "";
   if (key === istDateKey(0)) return "today, 4–8 PM";
   if (key === istDateKey(1)) return "tomorrow, 4–8 PM";
-  return new Date(key).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) + ", 4–8 PM";
+  return (
+    new Date(key).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) +
+    ", 4–8 PM"
+  );
 });
 
 const cartCta = computed(() => {
@@ -413,7 +431,7 @@ const setSelectedAddress = (addr: any) => {
 };
 
 const handleAddressClick = () => {
-  userAddress.value?.length ? showSheet.value = true : openModal.value = true;
+  userAddress.value?.length ? (showSheet.value = true) : (openModal.value = true);
 };
 </script>
 

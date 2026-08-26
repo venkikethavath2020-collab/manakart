@@ -263,9 +263,11 @@ export const useFruitsStore = defineStore("fruits", {
     },
 
     async createAddress(addressData: any) {
+      debugger
       this.loading = true;
       this.error = null;
       try {
+        console.log("Creating address with data:", localStorage.getItem("token"), addressData);
         const response = await apiClient.post("/users/addresses", addressData);
         if (!response.status || response.status !== 201) {
           throw new Error(`Error creating address: ${response.statusText}`);
