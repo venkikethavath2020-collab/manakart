@@ -829,42 +829,13 @@ const itemCount = (order: RiderOrder) => getOrderItems(order).length;
 
 /**
  * Formats the final deliverable quantity for a rider.
- * - Dozen-based (e.g. Banana): "6 dozen"
- * - Weight-based: unitGrams × quantity → "250 g" or "2 kg"
- * - Other units (Piece, Pack, etc.): preserves unitLabel when present
+ * Uses the price snapshot's variant label, so all catalog unit types display correctly.
  */
 const formatItemQuantity = (item: any) => {
   const quantity = Number(item.quantity || 0);
   if (!quantity) return "";
 
-  // Products sold by dozen (e.g. Banana)
-  if (item.unitLabel?.toLowerCase() === "dozen") {
-    return `${quantity} dozen`;
-  }
-
-  // Weight-based products
-  const unitGrams = Number(item.unitGrams || 0);
-  if (unitGrams) {
-    const totalGrams = unitGrams * quantity;
-
-    if (totalGrams >= 1000) {
-      const kg = totalGrams / 1000;
-      // Avoid unnecessary decimal zeros (2 kg not 2.00 kg; 1.5 kg ok)
-      const kgDisplay = kg % 1 === 0 ? String(kg) : parseFloat(kg.toFixed(2)).toString();
-      return `${kgDisplay} kg`;
-    }
-
-    return `${totalGrams} g`;
-  }
-
-  // Other explicit units (Piece, Pack, etc.)
-  if (item.unitLabel) {
-    const label = String(item.unitLabel).toLowerCase();
-    return `${quantity} ${label}`;
-  }
-
-  // Fallback: plain quantity
-  return String(quantity);
+  return item.variantLabel ? `${quantity} × ${item.variantLabel}` : String(quantity);
 };
 
 const hasLocation = (order: RiderOrder) =>

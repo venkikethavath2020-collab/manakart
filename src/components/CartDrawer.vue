@@ -29,38 +29,38 @@
 
           <div
             v-for="item in items"
-            :key="`${item.id}-${item.unitGrams}`"
+            :key="`${item.productId}-${item.variantId}`"
             class="flex gap-3 bg-slate-50 p-3 rounded-xl"
           >
             <img
-              :src="`/fruits_images/${item.name.toLowerCase()}.webp`"
+              :src="item.imageUrl || `/fruits_images/${item.productName.toLowerCase()}.webp`"
               class="w-14 h-14 rounded-lg object-cover"
             />
 
             <div class="flex-1">
               <div class="flex justify-between">
-                <p class="text-sm font-semibold">{{ item.name }}</p>
+                <p class="text-sm font-semibold">{{ item.productName }}</p>
 
                 <Trash2
                   class="w-4 h-4 text-red-500 cursor-pointer"
-                  @click="fruitsStore.removeFromCart(item.id, item.unitGrams)"
+                  @click="fruitsStore.removeFromCart(item.productId, item.variantId)"
                 />
               </div>
 
               <p class="text-xs text-slate-500">
-                {{ item.unitLabel }} &middot; &#8377;{{ unitPriceForItem(item) }}
+                {{ item.variantLabel }} &middot; &#8377;{{ unitPriceForItem(item) }}
               </p>
 
               <div class="flex justify-between mt-2">
                 <div class="flex items-center gap-2">
                   <Minus
                     class="qty-btn"
-                    @click="fruitsStore.updateCartQuantity(item.id, item.unitGrams, -1)"
+                    @click="fruitsStore.updateCartQuantity(item.productId, item.variantId, -1)"
                   />
                   <span class="text-xs font-semibold">{{ item.quantity }}</span>
                   <Plus
                     class="qty-btn"
-                    @click="fruitsStore.updateCartQuantity(item.id, item.unitGrams, 1)"
+                    @click="fruitsStore.updateCartQuantity(item.productId, item.variantId, 1)"
                   />
                 </div>
 
@@ -86,7 +86,7 @@
                   class="w-16 h-16 mx-auto rounded-lg object-cover"
                 />
                 <p class="text-xs mt-1 font-medium">{{ fruit.name }}</p>
-                <p class="text-xs text-green-600">&#8377;{{ fruit.price_per_kg }}/kg</p>
+                <p class="text-xs text-green-600">&#8377;{{ fruit.variants.find((variant: any) => variant.available)?.price }}</p>
 
                 <button
                   class="mt-1 text-xs bg-green-500 text-white px-2 py-1 rounded-lg"
@@ -405,23 +405,16 @@ const viewOrders = () => {
 };
 
 /* PRICE */
-const unitPriceForItem = (item: any) => {
-  const fruit = fruitsStore.fruits.find((f) => f.id === item.id);
-  const unit = fruit?.units?.find((u: any) => u.grams === item.unitGrams);
-  const price =
-    unit?.price ??
-    ((fruit?.price_per_kg ?? item.pricePerKgAtAdd) * item.unitGrams) / 1000;
-
-  return Math.round(price);
-};
+const unitPriceForItem = (item: any) => item.unitPrice;
 
 /* SUGGESTED */
 const suggestedFruits = computed(() =>
-  fruitsStore.fruits.filter((f) => !items.value.some((i) => i.id === f.id)).slice(0, 5)
+  fruitsStore.fruits.filter((f) => !items.value.some((i) => i.productId === f.id)).slice(0, 5)
 );
 
 const addSuggested = (fruit: any) => {
-  fruitsStore.addToCart(fruit, { grams: 1000, label: "1 kg" }, 1);
+  const variant = fruit.variants.find((candidate: any) => candidate.available);
+  if (variant) fruitsStore.addToCart(fruit, variant, 1);
 };
 
 const setSelectedAddress = (addr: any) => {

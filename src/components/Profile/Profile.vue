@@ -166,7 +166,7 @@
               <p class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Items</p>
               <div
                 v-for="item in order.items"
-                :key="item.id + (item.unitGrams || '') + (item.unitLabel || '')"
+                :key="item.productId + item.variantId"
                 class="flex items-center gap-3 bg-slate-50 rounded-lg p-2"
               >
                 <img
@@ -338,40 +338,21 @@ const formatItemQuantity = (item: any) => {
   const quantity = Number(item.quantity || 0);
   if (!quantity) return "";
 
-  if (item.unitLabel?.toLowerCase() === "dozen") {
-    return `${quantity} dozen`;
-  }
-
-  const unitGrams = Number(item.unitGrams || 0);
-  if (unitGrams) {
-    const totalGrams = unitGrams * quantity;
-    if (totalGrams >= 1000) {
-      const kg = totalGrams / 1000;
-      const kgDisplay = kg % 1 === 0 ? String(kg) : parseFloat(kg.toFixed(2)).toString();
-      return `${kgDisplay} kg`;
-    }
-    return `${totalGrams} g`;
-  }
-
-  if (item.unitLabel) {
-    return `${quantity} ${String(item.unitLabel).toLowerCase()}`;
-  }
-
-  return String(quantity);
+  return item.variantLabel ? `${quantity} × ${item.variantLabel}` : String(quantity);
 };
 
 /** Line total: explicit total, or unit price × quantity */
 const getItemLineTotal = (item: any): number | null => {
   const quantity = Number(item.quantity || 0);
-  const pricePerKg = Number(item.pricePerKgAtAdd);
+  const unitPrice = Number(item.unitPrice);
 
   if (
     Number.isFinite(quantity) &&
     quantity >= 0 &&
-    Number.isFinite(pricePerKg) &&
-    pricePerKg >= 0
+    Number.isFinite(unitPrice) &&
+    unitPrice >= 0
   ) {
-    return quantity * pricePerKg;
+    return quantity * unitPrice;
   }
 
   // Fallback for older order data

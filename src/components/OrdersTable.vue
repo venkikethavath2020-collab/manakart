@@ -78,12 +78,12 @@
             <div class="flex flex-wrap gap-1">
               <span
                 v-for="item in order.items.slice(0, 3)"
-                :key="item.id + item.unitLabel"
+                :key="item.productId + item.variantId"
                 class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700"
               >
-                {{ item.name }}
+                {{ item.productName }}
                 <span class="text-slate-400">&middot;</span>
-                {{ item.unitLabel }}
+                {{ item.variantLabel }}
                 <span class="text-slate-400">x{{ item.quantity }}</span>
               </span>
               <span
@@ -145,20 +145,20 @@
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
-                    <tr v-for="item in order.items" :key="item.id + item.unitGrams" class="hover:bg-slate-50">
+                    <tr v-for="item in order.items" :key="item.productId + item.variantId" class="hover:bg-slate-50">
                       <td class="px-3 py-2.5">
                         <div class="flex items-center gap-2">
                           <img
-                            :src="`/fruits_images/${item.name?.toLowerCase()}.webp`"
+                            :src="`/fruits_images/${item.productName?.toLowerCase()}.webp`"
                             class="w-8 h-8 rounded-lg object-cover border border-slate-100"
                             @error="($event.target as HTMLImageElement).style.display = 'none'"
                           />
-                          <span class="font-medium text-slate-800">{{ item.name }}</span>
+                          <span class="font-medium text-slate-800">{{ item.productName }}</span>
                         </div>
                       </td>
                       <td class="px-3 py-2.5">
                         <span class="inline-flex items-center rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-xs font-semibold text-amber-700">
-                          {{ item.unitLabel }}
+                          {{ item.variantLabel }}
                         </span>
                       </td>
                       <td class="px-3 py-2.5 text-center font-semibold text-slate-800">
@@ -356,12 +356,12 @@ import apiClient from "../service/axios";
 
 /* ---------------- TYPES ---------------- */
 interface OrderItem {
-  id: string;
-  name: string;
+  productId: string;
+  variantId: string;
+  productName: string;
   quantity: number;
-  unitLabel: string;
-  unitGrams: number;
-  pricePerKgAtAdd: number;
+  variantLabel: string;
+  unitPrice: number;
 }
 
 interface Order {
@@ -455,8 +455,7 @@ const toggle = (id: string) => {
 
 /* ---------------- HELPERS ---------------- */
 const calcItemPrice = (item: OrderItem) => {
-  const unitPrice = Math.round((item.pricePerKgAtAdd * item.unitGrams) / 1000);
-  return unitPrice * item.quantity;
+  return item.unitPrice * item.quantity;
 };
 
 const formatDate = (date: string) =>

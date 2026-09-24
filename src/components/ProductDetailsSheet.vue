@@ -43,7 +43,7 @@
             </h2>
 
             <p class="text-lg font-semibold text-lime-600">
-              ₹{{ product.price_per_kg }}/kg
+              From ₹{{ product.variants?.[0]?.price ?? 0 }}
             </p>
 
             <p class="text-xs text-slate-500">Farm fresh • Handpicked quality</p>
@@ -119,7 +119,7 @@ import { fruitDetails, fruitDetails as ProductDetails } from "../constants/fruit
 
 type Product = {
   name: string;
-  price_per_kg: number;
+  variants?: { price: number }[];
 };
 
 type ProductDetails = {

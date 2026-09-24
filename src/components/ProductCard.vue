@@ -1,109 +1,78 @@
 <template>
   <article
-    class="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-xl hover:border-lime-300/70"
+    class="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-xl"
   >
-    <!-- IMAGE -->
     <div class="relative h-36 overflow-hidden border-b border-slate-100">
       <img
-        :src="`/fruits_images/${fruit?.name?.toLowerCase()}.webp`"
-        :alt="fruit.name"
+        :src="product.image_url || fallbackImage"
+        :alt="product.name"
         class="h-full w-full object-contain transition duration-500 group-hover:scale-105"
         loading="lazy"
       />
       <span
-        class="absolute left-3 top-3 rounded-full border border-slate-200 bg-white/90 px-3 py-1 text-xs font-semibold text-slate-900 shadow"
+        class="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-900 shadow"
+        >{{ product.name }}</span
       >
-        {{
-          FRUIT_EMOJIS[
-            fruit?.name.toLowerCase() as keyof typeof FRUIT_EMOJIS
-          ] || "🍎"
-        }}
-        {{ fruit.name }}
-      </span>
-      <!-- QUICK VIEW OVERLAY -->
       <div
         class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100"
       >
         <button
           class="rounded-xl bg-white px-4 py-2 text-xs font-semibold shadow hover:bg-lime-400"
-          @click="openDetails"
+          @click="showDetails = true"
         >
           Quick View
         </button>
       </div>
     </div>
-
-    <!-- CONTENT -->
     <div class="flex flex-1 flex-col gap-3 p-4">
-      <!-- PRICE HEADER -->
       <div class="flex items-center justify-between">
-        <p class="text-base font-semibold text-slate-900">₹{{ fruit.price_per_kg }}/kg</p>
-
+        <p class="text-base font-semibold text-slate-900">
+          ₹{{ selectedVariant?.price ?? 0 }}
+        </p>
         <span
-          class="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
+          class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
+          >Fresh</span
         >
-          Fresh
-        </span>
       </div>
-
-      <!-- UNIT SELECT -->
-      <label class="text-xs font-semibold text-slate-700">
-        Unit
+      <label class="text-xs font-semibold text-slate-700"
+        >Unit
         <select
-          v-model="selectedUnit"
-          class="mt-2 w-full rounded-2xl border border-slate-300/70 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800 transition focus:border-lime-400 focus:ring-2 focus:ring-lime-200"
+          v-model="selectedVariantId"
+          class="mt-2 w-full rounded-2xl border border-slate-300/70 bg-slate-50 px-3 py-2 text-xs font-semibold"
         >
-          <option v-for="unit in fruit.units" :key="unit.grams" :value="unit">
-            {{ unit.label }}
+          <option
+            v-for="variant in purchasableVariants"
+            :key="variant.id"
+            :value="variant.id"
+          >
+            {{ variant.unit_label }}
           </option>
         </select>
       </label>
-
-      <!-- QUANTITY + PRICE -->
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <button
-            type="button"
-            class="h-8 w-8 rounded-full border border-slate-300 bg-white text-base font-semibold text-slate-700 shadow-sm transition hover:border-lime-400 hover:bg-lime-50"
-            @click="decrement"
-          >
-            -
-          </button>
-
-          <span
-            class="min-w-[2rem] rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-center text-xs font-semibold text-slate-800"
-          >
-            {{ quantity }}
-          </span>
-
-          <button
-            type="button"
-            class="h-8 w-8 rounded-full border border-slate-300 bg-white text-base font-semibold text-slate-700 shadow-sm transition hover:border-lime-400 hover:bg-lime-50"
-            @click="increment"
-          >
-            +
-          </button>
+          <button class="h-8 w-8 rounded-full border" @click="quantity > 1 && quantity--">
+            -</button
+          ><span class="min-w-[2rem] text-center text-xs font-semibold">{{
+            quantity
+          }}</span
+          ><button class="h-8 w-8 rounded-full border" @click="quantity++">+</button>
         </div>
-
         <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1">
-          <p class="text-base font-semibold text-slate-900">₹{{ unitPrice }}</p>
+          <p class="text-base font-semibold">₹{{ totalPrice }}</p>
         </div>
       </div>
-
-      <!-- ACTION BUTTON -->
       <button
         v-if="!isInCart"
-        type="button"
-        class="mt-auto rounded-2xl border border-lime-300 bg-lime-400 px-4 py-2 text-xs font-semibold text-slate-900 shadow-soft transition hover:bg-lime-300 hover:border-lime-400 active:scale-[0.98]"
+        :disabled="!selectedVariant"
+        class="mt-auto rounded-2xl border border-lime-300 bg-lime-400 px-4 py-2 text-xs font-semibold disabled:opacity-50"
         @click="addToCart"
       >
         Add to Cart
       </button>
-
       <button
         v-else
-        type="button"
-        class="mt-2 rounded-2xl border border-slate-300 bg-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 shadow-soft transition hover:bg-slate-300 active:scale-[0.98]"
+        class="mt-auto rounded-2xl border border-slate-300 bg-slate-200 px-4 py-2 text-xs font-semibold"
         @click="removeFromCart"
       >
         Remove
@@ -111,91 +80,47 @@
     </div>
   </article>
   <AuthModal :model-value="showAuth" @update:model-value="showAuth = false" />
-  <ProductDetailsSheet v-model="showDetails" :product="fruit" />
+  <ProductDetailsSheet v-model="showDetails" :product="product" />
 </template>
-
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { FRUIT_EMOJIS } from "../constants/heroContent";
 import { useFruitsStore } from "../store/fruitsStore";
+import type { Product } from "../types/catalog";
 import AuthModal from "./Auth/AuthModal.vue";
 import ProductDetailsSheet from "./ProductDetailsSheet.vue";
-
-const props = defineProps<{
-  fruit: {
-    id: string;
-    name: string;
-    price_per_kg: number;
-    priceLabel?: string;
-    units?: { label: string; grams: number; price?: number }[];
-  };
-}>();
-
-const fruitStore = useFruitsStore();
-
-// Default to the 1kg option (or its dozen/large equivalent), falling back to
-// the last available unit — unit counts now vary per fruit.
-const defaultUnit =
-  props.fruit.units?.find((u) => u.grams === 1000) ??
-  props.fruit.units?.[props.fruit.units.length - 1] ?? { label: "", grams: 0 };
-const selectedUnit = ref(defaultUnit);
-
-const quantity = ref(1);
-
-const showDetails = ref(false);
-const openDetails = () => {
-  showDetails.value = true;
-};
-
-const roundPrice = (value: number) => Math.round(value);
-
-const unitPrice = computed(() => {
-  if (!selectedUnit.value?.grams) return 0;
-
-  const overridePrice = selectedUnit.value.price;
-
-  const price = overridePrice ?? (props.fruit.price_per_kg * selectedUnit.value.grams) / 1000;
-
-  return roundPrice(price) * quantity.value;
-});
-
-const isInCart = computed(() =>
-  fruitStore.cartItems.some(
-    (item) => item.id === props.fruit.id && item.unitGrams === selectedUnit.value.grams
-  )
+const props = defineProps<{ product: Product }>();
+const store = useFruitsStore();
+const purchasableVariants = computed(() =>
+  props.product.variants.filter((variant) => variant.available)
 );
-
-const decrement = () => {
-  if (quantity.value > 1) quantity.value--;
-};
-
-const increment = () => {
-  quantity.value++;
-};
-
+const selectedVariantId = ref(purchasableVariants.value[0]?.id ?? "");
+const selectedVariant = computed(() =>
+  purchasableVariants.value.find((variant) => variant.id === selectedVariantId.value)
+);
+const quantity = ref(1);
 const showAuth = ref(false);
-
-const addToCart = () => {
-  const user = localStorage.getItem("user");
-  if (!user) {
+const showDetails = ref(false);
+const fallbackImage = computed(
+  () => `/fruits_images/${props.product.name.toLowerCase()}.webp`
+);
+const totalPrice = computed(() => (selectedVariant.value?.price ?? 0) * quantity.value);
+const isInCart = computed(
+  () =>
+    !!selectedVariant.value &&
+    store.findCartItemIndex(props.product.id, selectedVariant.value.id) >= 0
+);
+function addToCart() {
+  if (!localStorage.getItem("user")) {
     showAuth.value = true;
     return;
   }
-  fruitStore.addToCart(
-    {
-      ...props.fruit,
-      price_per_kg: props.fruit.price_per_kg,
-    },
-    selectedUnit.value,
-    quantity.value
-  );
-
+  if (selectedVariant.value)
+    store.addToCart(props.product, selectedVariant.value, quantity.value);
   quantity.value = 1;
-};
-
-const removeFromCart = () => {
-  fruitStore.removeFromCart(props.fruit.id, selectedUnit.value.grams);
-
+}
+function removeFromCart() {
+  if (selectedVariant.value)
+    store.removeFromCart(props.product.id, selectedVariant.value.id);
   quantity.value = 1;
-};
+}
 </script>
