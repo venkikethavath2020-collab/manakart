@@ -170,12 +170,12 @@
                 class="flex items-center gap-3 bg-slate-50 rounded-lg p-2"
               >
                 <img
-                  :src="`/fruits_images/${item.name?.toLowerCase()}.webp`"
+                  :src="`/fruits_images/${item.productName?.toLowerCase()}.webp`"
                   class="w-10 h-10 rounded-lg object-cover"
                   @error="($event.target as HTMLImageElement).style.display = 'none'"
                 />
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium text-slate-800">{{ item.name }}</p>
+                  <p class="text-sm font-medium text-slate-800">{{ item.productName }}</p>
                   <p class="text-xs text-slate-500">{{ formatItemQuantity(item) }}</p>
                 </div>
                 <p
@@ -475,7 +475,7 @@ const escapeHtml = (text: string) =>
   
    const itemRows = items
   .map((item: any, index: number) => {
-    const name = escapeHtml(item.name || "Item");
+    const name = escapeHtml(item.productName || "Item");
     const qty = escapeHtml(formatItemQuantity(item) || "—");
 
     const lineTotal = getItemLineTotal(item);

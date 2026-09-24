@@ -63,16 +63,16 @@
         <div class="mt-4 space-y-2">
           <div
             v-for="(p, i) in topProducts"
-            :key="p.name"
+            :key="p.productName"
             class="flex items-center gap-3 rounded-xl border border-slate-100 px-3 py-2"
           >
             <span class="text-sm font-bold text-slate-400">#{{ i + 1 }}</span>
             <img
-              :src="`/fruits_images/${p.name.toLowerCase()}.webp`"
+              :src="`/fruits_images/${p.productName.toLowerCase()}.webp`"
               class="h-8 w-8 rounded-lg object-cover"
               @error="($event.target as HTMLImageElement).style.display = 'none'"
             />
-            <span class="flex-1 text-sm font-medium text-slate-800">{{ p.name }}</span>
+            <span class="flex-1 text-sm font-medium text-slate-800">{{ p.productName }}</span>
             <span class="text-xs font-semibold text-slate-500">{{ p.qty }} sold</span>
           </div>
           <p v-if="!topProducts.length" class="py-6 text-center text-sm text-slate-400">
@@ -168,12 +168,13 @@ const pct = (count: number) => (orders.value.length ? Math.round((count / orders
 const topProducts = computed(() => {
   const tally: Record<string, number> = {};
   for (const o of orders.value) {
+    debugger
     for (const item of o.items || []) {
-      tally[item.name] = (tally[item.name] || 0) + (item.quantity || 0);
+      tally[item.productName] = (tally[item.productName] || 0) + (item.quantity || 0);
     }
   }
   return Object.entries(tally)
-    .map(([name, qty]) => ({ name, qty }))
+    .map(([productName, qty]) => ({ productName, qty }))
     .sort((a, b) => b.qty - a.qty)
     .slice(0, 5);
 });
