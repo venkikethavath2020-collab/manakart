@@ -22,13 +22,6 @@
     </header>
 
     <main class="mx-auto max-w-5xl px-4 pt-5">
-      <!-- HERO STRIP -->
-      <!-- <div class="mb-5 overflow-hidden rounded-3xl bg-gradient-to-r from-lime-500 to-green-600 px-5 py-6 text-white shadow-soft-lg">
-        <p class="text-xs font-semibold uppercase tracking-wide text-white/80">Fresh today</p>
-        <h1 class="mt-1 font-display text-2xl font-extrabold">Market-fresh fruits 🥭</h1>
-        <p class="mt-1 text-sm text-white/90">{{ deliveryLine }} · Pay on delivery</p>
-      </div> -->
-
       <!-- DELIVERY WINDOW NOTICE -->
       <div
         class="mb-5 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3"
@@ -51,8 +44,8 @@
       <!-- SECTION HEADER -->
       <div class="mb-3 flex items-end justify-between">
         <div>
-          <h2 class="font-display text-xl font-bold text-slate-900">All Fruits</h2>
-          <p class="text-xs text-slate-500">{{ displayedFruits.length }} available now</p>
+          <h2 class="font-display text-xl font-bold text-slate-900">Fresh products</h2>
+          <p class="text-xs text-slate-500">{{ availableProducts.length }} available now</p>
         </div>
         <span
           class="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-slate-600 ring-1 ring-slate-100"
@@ -70,13 +63,21 @@
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="Search fresh fruits…"
+          placeholder="Search products…"
           class="w-full rounded-2xl border border-slate-400 bg-slate-50 py-3 pl-10 pr-4 text-sm text-slate-800 placeholder:text-slate-400 focus:border-lime-400 focus:bg-white focus:ring-2 focus:ring-lime-200"
         />
       </div>
 
-      <!-- GRID -->
-      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <!-- CATEGORY-DRIVEN PRODUCT GRIDS -->
+      <div v-if="!fruitsStore.isLoading" class="space-y-8">
+        <section v-for="group in categoryGroups" :key="group.category.id">
+          <h3 class="mb-3 font-display text-lg font-bold text-slate-900">{{ group.category.name }}</h3>
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            <ProductCard v-for="product in group.products" :key="product.id" :product="product" />
+          </div>
+        </section>
+      </div>
+      <div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         <template v-if="fruitsStore.isLoading">
           <div
             v-for="n in 8"
@@ -90,18 +91,6 @@
           </div>
         </template>
 
-        <template v-else>
-          <ProductCard v-for="fruit in displayedFruits" :key="fruit.id" :fruit="fruit" />
-
-          <div
-            v-if="!displayedFruits.length"
-            class="col-span-full py-16 text-center text-slate-500"
-          >
-            <p class="text-4xl">🔍</p>
-            <p class="mt-2 font-medium">No fruits match "{{ searchQuery }}"</p>
-            <p class="mt-1 text-xs">Try a different search</p>
-          </div>
-        </template>
       </div>
     </main>
 
@@ -174,16 +163,16 @@ const showAuth = ref(false);
 const isLoggedIn = computed(() => authStore.isLoggedIn);
 const itemCount = computed(() => fruitsStore.cartItemCount);
 
-const availableFruits = computed<any>(() =>
-  fruitsStore.fruits.filter((fruit) => fruit.available)
-);
-
-const displayedFruits = computed(() => {
-  if (!searchQuery.value.trim()) return availableFruits.value;
+const availableProducts = computed(() => fruitsStore.fruits.filter((product) => product.available && product.variants.some((variant) => variant.available)));
+const categoryGroups = computed(() => {
   const q = searchQuery.value.toLowerCase().trim();
-  return availableFruits.value.filter((fruit: any) =>
-    fruit.name.toLowerCase().includes(q)
-  );
+  const groups = new Map<string, { category: any; products: any[] }>();
+  availableProducts.value.filter((product) => !q || product.name.toLowerCase().includes(q)).forEach((product) => {
+    const key = product.category.id;
+    if (!groups.has(key)) groups.set(key, { category: product.category, products: [] });
+    groups.get(key)!.products.push(product);
+  });
+  return [...groups.values()];
 });
 
 const openCart = () => (isCartOpen.value = true);
